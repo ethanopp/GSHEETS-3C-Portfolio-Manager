@@ -178,8 +178,8 @@ function loadCurrentRisk() {
     targetBankroll.setValues(currentBankroll);
 
     // Update Deals
-    var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal SO Table!F3:K1003").getValues();
-    var targetRange = SpreadsheetApp.getActive().getRange("Risk Planner!C47:H1047");
+    var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal SO Table!G3:K1003").getValues();
+    var targetRange = SpreadsheetApp.getActive().getRange("Risk Planner!C47:G1047");
     targetRange.setValues(sourceValues);
 }
 

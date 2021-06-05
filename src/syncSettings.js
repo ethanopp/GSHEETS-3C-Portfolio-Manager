@@ -27,6 +27,7 @@ function dailySyncAdd() {
 }
 
 async function updateSheet(){
+    await syncExchangeBalanceTo3c()
     await get3cdeals()
     await get3cpie()
     console.log('updated all data.')

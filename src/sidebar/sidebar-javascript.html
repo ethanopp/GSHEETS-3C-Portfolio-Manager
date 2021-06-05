@@ -11,6 +11,10 @@
         document.getElementById('apiDiv').classList.add('hidden')
     })
 
+    document.getElementById('tipJarButton').addEventListener("click", () => {
+        window.open("https://www.buymeacoffee.com/H3brewHammer", '_blank');
+    });
+
 
 
     document.getElementById('syncNowButton').addEventListener('click', () => {
@@ -24,13 +28,11 @@
             })
             .withFailureHandler(() => {
                 document.getElementById('refreshIcon').classList.remove('refreshIcon-spin')
-                google.script.run.sheetsUiError("There was an error", "It seems there was an error with the sync. Check the logs and try again.")
+                google.script.run.sheetsUiMessage("There was an error", "It seems there was an error with the sync. Check the logs and try again.")
             })
             .sidebar_updateSheet()
 
     })
-
-
 
     document.getElementById('api_key_submit_button').addEventListener('click', () => {
         let api_id = document.getElementById('api_id').value
@@ -56,6 +58,18 @@
 
     })
 
+    document.getElementById('clear_api_keys').addEventListener('click', () => {
+
+        google.script.run
+            .withSuccessHandler(() => {
+                console.log('deleted API keys')
+            })
+            .sidebar_deleteApiKeys()
+
+
+
+
+    })
 
 
 </script>

@@ -163,10 +163,11 @@ async function get3caccounts() {
 
     // Load data into new array with only the columns we want and format them
     apiCall.forEach(row => {
-        let { id, name } = row
+        let { id, name, market_code } = row
         let tempObject = {
             id,
-            name
+            name,
+            market_code
         }
         dataArray.push(tempObject);
     })
@@ -186,7 +187,7 @@ async function get3cpie() {
     let dataArray = []
 
     for (account of accountData) {
-        let { id, name } = account
+        let { id, name, market_code } = account
         var apiCall = await query3c("post", "/public/api/ver1/accounts/" + id + "/account_table_data", "");
 
         // Load data into new array with only the columns we want and format them
@@ -201,7 +202,8 @@ async function get3cpie() {
                 position,
                 on_orders,
                 btc_value,
-                'usd_value': usd_value.toFixed(2)
+                'usd_value': usd_value.toFixed(2),
+                market_code
             }
 
             dataArray.push(tempObject);
@@ -225,16 +227,10 @@ async function get3cpie() {
 
 async function syncExchangeBalanceTo3c() {
     // Grab all Account IDs
-    var sheet = SpreadsheetApp.getActive().getSheetByName("Account (raw)");
-    var rangeData = sheet.getDataRange();
-    var lastRow = rangeData.getLastRow();
-    if (lastRow > 1) {
-        var searchRange = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-        // Loop through each ID and hit endpoint to refresh
-        await searchRange.forEach(function (row) {
-            //  Logger.log("/ver1/accounts/"+row[0].toLocaleString().replace(/,/g,"")+"/load_balances");
-            query3c("post", "/public/api/ver1/accounts/" + row[0].toLocaleString().replace(/,/g, "") + "/load_balances", "")
-        });
+    let accountData = await get3caccounts()
+
+    for(account in accountData){
+        query3c("post", `/public/api/ver1/accounts/${account.id}/load_balances`, "")
     }
 
 }

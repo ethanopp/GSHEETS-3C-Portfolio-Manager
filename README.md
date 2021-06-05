@@ -1,3 +1,7 @@
+# KNOW ISSUES
+
+1. If saving the API keys does not prompt you with a confirmation message, switch to a private browser and do it. Google has a bug in passing data from the front end to backend when you have multiple Google accounts.
+
 # Permissions
 
 The 3C Risk Manager integration requests multiple permissions through Google Sheets. These permissions are only to fetch data, automate the fetching, and modify your sheet. A description of each permission and purpose is below.
@@ -15,3 +19,11 @@ Prompts can be found in the `generalFunctions.js` and these are exclusively used
 
 ## Allow this application to run when you are not present
 This is the automation and trigger settings. These are managed in the syncSettings.js file. When you create a trigger and authorize this scope it will allow the script to run without you present every dat at 3:45am.
+
+
+## API Keys
+The API keys are stored within Google App Script's Properties. These can be accessed from within Google Sheets by going to Tools > Script Editor > Use Legacy Editor (Top right) > File > Project Properties > Script Properties.
+
+You should not need to access these ever, but they are available to see. If you add new API keys via the sidebar it will overwrite these keys in favor of the new keys.
+
+Lastly, to delete API keys you can use the '3c - Risk Manager' > Delete API Keys from within the Sheet.

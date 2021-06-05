@@ -81,7 +81,6 @@ async function query3cNEW(method, endpoint, params = '') {
      * @param {string} params - If additional params are needed to be passed in, do not include the offset or limit.
      */
     
-   // var config = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Instructions");
     const apikey = getScriptProperty('api_id')
     const apisecret = getScriptProperty('api_secret');
 
@@ -100,7 +99,8 @@ async function query3cNEW(method, endpoint, params = '') {
             
         response = await query3cRateLimiter(baseUrl + queryString, method, apikey, signature)
 
-        if(response.data.length > 0){
+        // limiting the offset to just 5000 here. This can be adjusted but made for some issues with writing to Sheets.
+        if(response.data.length > 0 || offset < 5000){
             responseArray.push(...response.data)
             offset = offset + 1000
         }
