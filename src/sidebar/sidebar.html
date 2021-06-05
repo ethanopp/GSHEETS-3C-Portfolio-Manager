@@ -1,0 +1,87 @@
+<html>
+
+<head>
+    <base target="_top" />
+
+    <?!= HtmlService.createHtmlOutputFromFile('sidebar/sidebar-stylesheet').getContent(); ?>
+</head>
+
+<body class="container">
+    <header>
+        <?!= HtmlService.createHtmlOutputFromFile('sidebar/assets/money').getContent(); ?>
+        <h1 class="heroText">3C Risk Manager</h1>
+        </div>
+    </header>
+
+    <content>
+        <div id="menuDiv" class="">
+            <div class="contentOption" id="syncNowButton">
+                <div class="contentSubOptionImg column1">
+                    <?!= HtmlService.createHtmlOutputFromFile('sidebar/assets/refreshIcon').getContent(); ?>
+                </div>
+                <div class="contentSubOptionInfo column2">
+                    <div id="syncNowContent">
+                        <h3>Sync Data</h3>
+                        <p>Update the PCO Data</p>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="contentOption" id="apiButton">
+                <div class="contentSubOptionImg column1">
+                    <?!= HtmlService.createHtmlOutputFromFile('sidebar/assets/settingsIcon').getContent(); ?>
+                </div>
+                <div class="contentSubOptionInfo column2">
+                    <h3>API Settings</h3>
+                    <p>Configure your API Keys</p>
+                </div>
+            </div>
+
+        </div>
+        <div id="apiDiv" class="page hidden">
+            <h2>API Keys</h2>
+            <p>Configure 3C API keys</p>
+            <div class="configurationOptions">
+                <form id='api_form'>
+                    <label for="api_id">ID:</label><br>
+                    <input type="text" id="api_id" name="api_id" required><br>
+                    <label for="api_secret">Secret:</label><br>
+                    <input type="text" id="api_secret" name="api_secret" required><br>
+                    <input type="submit" value="Submit" id="api_key_submit_button">
+                </form> 
+
+            </div>
+
+            <div class="settingsSyncButtons">
+
+                <div class="contentOption backToHomeButton" id="backToHomeButton-api">
+                    <div class="contentSubOptionImg column1">
+                        <?!= HtmlService.createHtmlOutputFromFile('sidebar/assets/backButtonSVG').getContent(); ?>
+                    </div>
+                    <div class="contentSubOptionInfo column2">
+                        <div id="syncNowContent">
+                            <h3>Back</h3>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </content>
+
+    <footer>
+        <span>This plugin is not affiliated with 3Commas.</span>
+        <span>For more information on permissions requested and to see the integration code click Add-Ons > Script Editor or go to script.google.com.</span>
+    </footer>
+
+    <?!= HtmlService.createHtmlOutputFromFile('sidebar/sidebar-javascript').getContent(); ?>
+
+
+</body>
+
+</html>

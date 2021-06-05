@@ -1,0 +1,257 @@
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css" />
+<style>
+    .container {
+        display: flex;
+        /* flex-wrap: wrap; */
+        justify-content: center;
+        flex-direction: column;
+        height: 95vh;
+        min-height: 700px;
+        padding: 10px;
+        word-wrap: break-word;
+        max-width: 300px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    header,
+    .header,
+    .buttonDiv {
+        font-size: 16px;
+        text-align: center;
+
+    }
+
+    .buttonDiv button {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    content {
+        flex-grow: 4;
+        display: flex;
+        flex-direction: column;
+        align-self: center;
+        align-content: center;
+        justify-content: flex-start;
+        padding-top: 20px;
+        margin: auto;
+        width: 300px;
+        max-width: 100%;
+    }
+
+    .textCenter {
+        font-size: 16px;
+        text-align: center;
+        width: 100%;
+    }
+
+    footer {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        flex-wrap: wrap;
+        font-size: 12px;
+        text-align: center;
+        width: 100%;
+    }
+
+    #money {
+        width: 100%;
+        max-width: 100px;
+        padding-top: 15px;
+        align-self: center;
+        margin: auto;
+    }
+
+    .copyright {
+        font-size: 10px;
+        color: grey;
+    }
+
+    .heroText {
+        font-weight: 600;
+        font-size: 1.5em;
+        letter-spacing: 1.1px;
+        line-height: 1.2;
+        color: #8BBABC;
+    }
+
+    .row {
+        display: flex;
+        text-align: center;
+        width: 80%;
+        align-self: center;
+        margin: auto;
+        padding-top: 15px;
+    }
+
+    .column {
+        flex: 50%;
+    }
+
+    .authorizeDiv {
+        padding-top: 20px;
+    }
+
+    .contentOption {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 20px;
+    }
+
+    .contentOption:hover {
+        background-color: #F3F5F7;
+    }
+
+    #refreshIcon,
+    #settingsIcon,
+    #backButtonSVG,
+    #refreshIconSettings
+    {
+        max-width: 30px;
+        max-height: 30px;
+        padding: 5px;
+        fill: #212B3B;
+    }
+
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(359deg);
+        }
+    }
+
+    .refreshIcon-spin {
+        animation: spin 2s linear infinite;
+
+    }
+
+
+    .column1 {
+        width: 15%;
+        align-content: center;
+        margin-right: 10px;
+    }
+
+    .column2 {
+        width: 85%;
+        align-content: center;
+        justify-self: center;
+        align-self: center;
+    }
+
+    .contentSubOptionInfo h3 {
+        font-size: 1.5em;
+        color: #212B3B;
+        margin: 0;
+    }
+
+    .contentSubOptionInfo p {
+        font-size: 1.1em;
+        margin: 0;
+        color: #9F9F9F
+    }
+
+
+
+    .page {
+        width: 100%;
+        text-align: center;
+
+    }
+
+
+    .page h2 {
+        font-size: 1.5em;
+        color: #212B3B;
+        margin: 0;
+    }
+
+    .page p {
+        font-size: 1.1em;
+        margin: 0;
+        color: #9F9F9F;
+        padding-top: 5px;
+    }
+
+    .configurationOptions {
+        text-align: center;
+        padding-top: 30px;
+    }
+
+    .configurationOptions p {
+        color: #212B3B;
+    }
+
+    .backToHomeButton {
+        margin-top: 50px;
+        text-align: left;
+    }
+
+    .infoContentDivsContainer {
+        padding-top: 30px;
+    }
+
+    .infoContentDivs {
+        padding-top: 15px;
+    }
+
+    .infoContentDivs h3 {
+        font-size: 1.5em;
+        color: #212B3B;
+        margin: 0;
+    }
+
+    .infoContentDivs p {
+        font-size: 1.1em;
+        margin: 0;
+        color: #9F9F9F
+    }
+
+    .settingsSyncButtons {
+        padding-top: 25px;
+    }
+
+    .settingsSyncButtons h3,
+    .settingsSyncButtons p {
+        text-align: left;
+    }
+
+    #labelDate {
+        display: block;
+        font: 1rem 'Fira Sans', sans-serif;
+    }
+
+    /* #start,
+    #labelDate {
+        margin: .4rem 0;
+    } */
+
+    #start {
+        margin-top: 5px;
+    }
+
+    .configurationOptions p {
+        padding-bottom: 10px ;
+    }
+    .configurationOptions form {
+        width: 90%;
+        margin: auto
+    }
+
+    .configurationOptions input {
+        display: block;
+        width: 100%;
+    }
+
+</style>

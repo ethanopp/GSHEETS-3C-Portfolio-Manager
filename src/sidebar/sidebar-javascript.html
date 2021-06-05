@@ -1,0 +1,61 @@
+<script>
+
+
+    document.getElementById('apiButton').addEventListener("click", () => {
+        document.getElementById('menuDiv').classList.add('hidden')
+        document.getElementById('apiDiv').classList.remove('hidden')
+    })
+
+    document.getElementById('backToHomeButton-api').addEventListener("click", () => {
+        document.getElementById('menuDiv').classList.remove('hidden')
+        document.getElementById('apiDiv').classList.add('hidden')
+    })
+
+
+
+    document.getElementById('syncNowButton').addEventListener('click', () => {
+
+
+        document.getElementById('refreshIcon').classList.add('refreshIcon-spin');
+
+        google.script.run
+            .withSuccessHandler(() => {
+                document.getElementById('refreshIcon').classList.remove('refreshIcon-spin')
+            })
+            .withFailureHandler(() => {
+                document.getElementById('refreshIcon').classList.remove('refreshIcon-spin')
+                google.script.run.sheetsUiError("There was an error", "It seems there was an error with the sync. Check the logs and try again.")
+            })
+            .sidebar_updateSheet()
+
+    })
+
+
+
+    document.getElementById('api_key_submit_button').addEventListener('click', () => {
+        let api_id = document.getElementById('api_id').value
+        let api_secret = document.getElementById('api_secret').value
+
+        let api_keys = {
+            api_id,
+            api_secret,
+        }
+
+        if (api_id != "" && api_secret != "") {
+            console.log(api_keys)
+
+            google.script.run
+                .withSuccessHandler(() => {
+                    console.log('worked!!')
+                    google.script.run.sheetsUiMessage('API Keys have been updated', `Your API Keys have been updated. Attempt to run a Sync Data and confirm there are no errors with the keys.`)
+                })
+                .updateApiKeys(api_keys)
+        }
+
+
+
+    })
+
+
+
+</script>
