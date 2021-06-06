@@ -163,10 +163,11 @@ async function get3caccounts() {
 
     // Load data into new array with only the columns we want and format them
     apiCall.forEach(row => {
-        let { id, name } = row
+        let { id, name, market_code } = row
         let tempObject = {
             id,
-            name
+            name,
+            market_code
         }
         dataArray.push(tempObject);
     })
@@ -186,7 +187,7 @@ async function get3cpie() {
     let dataArray = []
 
     for (account of accountData) {
-        let { id, name } = account
+        let { id, name, market_code } = account
         var apiCall = await query3c("post", "/public/api/ver1/accounts/" + id + "/account_table_data", "");
 
         // Load data into new array with only the columns we want and format them
@@ -201,7 +202,8 @@ async function get3cpie() {
                 position,
                 on_orders,
                 btc_value,
-                'usd_value': usd_value.toFixed(2)
+                'usd_value': usd_value.toFixed(2),
+                market_code
             }
 
             dataArray.push(tempObject);

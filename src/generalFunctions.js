@@ -6,7 +6,7 @@ function utcnow() {
   }
   
   function utcnowdate() {
-    return Utilities.formatDate(new Date(), "GMT+0", "MM/dd/yyyy")
+    return Utilities.formatDate(new Date(), "GMT+0")
   }
   
 

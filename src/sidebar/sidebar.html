@@ -22,7 +22,7 @@
                 <div class="contentSubOptionInfo column2">
                     <div id="syncNowContent">
                         <h3>Sync Data</h3>
-                        <p>Update the PCO Data</p>
+                        <p>Update your 3Commas Data</p>
                     </div>
 
                 </div>
@@ -38,6 +38,17 @@
                 </div>
             </div>
 
+            <div class="contentOption" id="tipJarButton">
+                <div class="contentSubOptionImg column1">
+                    <?!= HtmlService.createHtmlOutputFromFile('sidebar/assets/jar').getContent(); ?>
+
+                </div>
+                <div class="contentSubOptionInfo column2">
+                    <h3>Donate</h3>
+                    <p>Help us keep this tool free for all people!</p>
+                </div>
+            </div>
+
         </div>
         <div id="apiDiv" class="page hidden">
             <h2>API Keys</h2>
@@ -48,8 +59,11 @@
                     <input type="text" id="api_id" name="api_id" required><br>
                     <label for="api_secret">Secret:</label><br>
                     <input type="text" id="api_secret" name="api_secret" required><br>
-                    <input type="submit" value="Submit" id="api_key_submit_button">
+                    <input type="submit" value="Submit" id="api_key_submit_button" class="action"><br>
+                    
                 </form> 
+
+                <input type="submit" value="Clear Stored API Keys" id="clear_api_keys" >
 
             </div>
 
