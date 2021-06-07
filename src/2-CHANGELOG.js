@@ -1,6 +1,9 @@
 /**
 
 CHANGE LOG
+# v5.6
+- Modified the account and sync API calls to use the new 3c api handler
+- Added bot statistics to 'Raw - Bot Data'
 
 # v5.5
 

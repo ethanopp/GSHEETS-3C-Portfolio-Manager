@@ -27,8 +27,12 @@ function dailySyncAdd() {
 }
 
 async function updateSheet(){
+
+    // TODO - add error handling here for each to finish successful
+    await syncExchangeBalanceTo3c()
     await get3cdeals()
     await get3cpie()
+    await get3cBots()
     console.log('updated all data.')
 }
 
