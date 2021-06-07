@@ -1,33 +1,3 @@
-// function onEdit(e) {
-
-//     var sh = e.range.getSheet();
-//     // link account filter dropdowns
-//     if (sh.getName() == 'Risk Monitor') {
-  
-//       if (e.range.getA1Notation() == 'F2') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Instructions!A18").setValue(account);
-//       } else if (e.range.getA1Notation() == 'E2') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Instructions!A15").setValue(account);
-  
-//       }
-  
-  
-//     } else if (sh.getName() == 'Instructions') {
-  
-//       if (e.range.getA1Notation() == 'A18') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A18").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(account);
-  
-//       } else if (e.range.getA1Notation() == 'A15') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A15").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-//         // main();
-//       }
-  
-//     }
-//   }
 
 /************************************************
 *
@@ -37,18 +7,16 @@
 
 function pushToSheet(sheetName, data) {
 
-    //console.log(additionalHeaders)
-
     try {
         const ss = SpreadsheetApp.getActive().getSheetByName(sheetName);
         const lastRow = ss.getLastRow()
         const lastCol = ss.getLastColumn();
 
-        // ss.getProtections(SpreadsheetApp.ProtectionType.RANGE).forEach(protection => {
-        //     if (protection.canEdit()) {
-        //         protection.remove();
-        //     }
-        // })
+        ss.getProtections(SpreadsheetApp.ProtectionType.RANGE).forEach(protection => {
+            if (protection.canEdit()) {
+                protection.remove();
+            }
+        })
 
         let output = [];
         if (lastRow > 0 && lastCol > 0) {
@@ -212,3 +180,14 @@ function main() {
     SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Risk Monitor").getRange('I3').setValue("Last Refreshed: " + Date(Date.now()).toString())
 
 }
+
+
+/**
+ * Returns today's date in UTC
+ *
+ * @return Returns today's date in UTC
+ * @customfunction
+ */
+ function utc_today() {
+    return Utilities.formatDate(new Date(), "UTC", "yyyy-MM-dd")
+  }

@@ -44,20 +44,40 @@ function deleteAllScriptProperties() {
 *
 ********************************************/
 
+
+ function setActiveSpreadsheetID() {
 /**
  * @description fetching the active sheetID and setting it as a property. This is called during the OAuth Auth flow.
  */
- function setActiveSpreadsheetID() {
     const activeSpreadsheetID = SpreadsheetApp.getActiveSpreadsheet().getId();
     setScriptProperty("activeSpreadsheetID", activeSpreadsheetID);
 }
 
+
+function getDefaultSpreadsheetId() {
 /**
  * @description fetching the active sheetID and setting it as a property. This is called during the OAuth Auth flow.
  * @returns {string} - returns the full value for openign the spreadsheet by ID
  */
-function getDefaultSpreadsheetId() {
     let spreadsheetID = getScriptProperty("activeSpreadsheetID");
     let spreadsheet = SpreadsheetApp.openById(spreadsheetID);
     return spreadsheet;
+}
+
+
+/******************************************
+* 
+*        Tab Information
+*
+********************************************/
+
+function tabs(){
+
+    return {
+        'bot_tab' : 'Raw - Bot Data',
+        'deal_tab': 'deals (raw)',
+        'account_balances_tab' : 'Account Balances (raw)'
+    }
+
+
 }

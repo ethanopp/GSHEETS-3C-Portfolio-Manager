@@ -8,40 +8,44 @@
 async function getActiveDeals() {
     /**
      * @description Fetching only the active deals within 3c.
+     * 
+     * @api_docs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/deals_api.md#user-deals-permission-bots_read-security-signed
      */
 
-    let endpoint = "/public/api/ver1/deals"
+    let endpoint = "/ver1/deals"
     let params = `&scope=active`
 
-    return await query3cNEW('GET', endpoint, params)
+    let apiCall = await query3commasAPI('GET', endpoint, params, true)  
+    apiCall.map(deal => deal['status'] = "active")
+
+    return apiCall
 }
 
 async function getCompletedDeals() {
     /**
      * @description Fetching only the completed deals within 3c.
+     * 
+     * @api_docs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/deals_api.md#user-deals-permission-bots_read-security-signed
      */
-    let endpoint = "/public/api/ver1/deals"
+    let endpoint = "/ver1/deals"
     let params = `&scope=completed`
 
-    return await query3cNEW('GET', endpoint, params)
+    let apiCall = await query3commasAPI('GET', endpoint, params, true)
+    apiCall.map(deal => deal['status'] = "completed")
+
+    return apiCall
+        
 }
 
 async function get3cdeals() {
     /**
      * @description - The primary deal fetch function. This pulls both Active and Completed deals.
+     * 
      */
-
-    // TODO - this needs to be a dynamic variable within the sync function, or stored in document properties.
-    let dealRawTab = 'deals (raw)'
 
     let activeDeals = await getActiveDeals();
     let completedDeals = await getCompletedDeals();
-    console.log(completedDeals[0])
     let accountData = await get3caccounts();
-
-
-    activeDeals.map(deal => deal['status'] = "active")
-    completedDeals.map(deal => deal['status'] = "completed")
 
     let apiCall = [...activeDeals, ...completedDeals]
 
@@ -50,7 +54,20 @@ async function get3cdeals() {
     // Load data into new array with only the columns we want and format them
     apiCall.forEach(row => {
 
-        let { account_id, id, max_safety_orders, status, active_safety_orders_count, created_at, updated_at, closed_at, completed_safety_orders_count, pair, take_profit, base_order_volume, safety_order_volume, safety_order_step_percentage, bought_volume, bought_amount, bought_average_price, base_order_average_price, sold_amount, sold_volume, sold_average_price, final_profit, profit_currency, martingale_coefficient, martingale_volume_coefficient, martingale_step_coefficient, stop_loss_percentage, from_currency, to_currency, current_price, take_profit_price, stop_loss_price, final_profit_percentage, actual_profit_percentage, bot_name, account_name, usd_final_profit, actual_profit, actual_profit_usd } = row
+        let { 
+            account_id, id, max_safety_orders, 
+            status, active_safety_orders_count, created_at, 
+            updated_at, closed_at, completed_safety_orders_count, 
+            pair, take_profit, base_order_volume, 
+            safety_order_volume, safety_order_step_percentage, bought_volume, 
+            bought_amount, bought_average_price, base_order_average_price, 
+            sold_amount, sold_volume, sold_average_price, final_profit, 
+            profit_currency, martingale_coefficient, martingale_volume_coefficient, 
+            martingale_step_coefficient, stop_loss_percentage, from_currency, 
+            to_currency, current_price, take_profit_price, stop_loss_price, 
+            final_profit_percentage, actual_profit_percentage, bot_name, 
+            account_name, usd_final_profit, actual_profit, actual_usd_profit 
+        } = row
 
         // commented out the excess columns to save space / speed.
 
@@ -87,7 +104,7 @@ async function get3cdeals() {
 
         let dealHours = deal_hours(created_at, closed_at)
 
-        let profitPercent = (( ( +actual_profit + +bought_volume ) - +bought_volume)  /  +bought_volume) / +bought_volume / +dealHours
+        let profitPercent = (((+actual_profit + +bought_volume) - +bought_volume) / +bought_volume) / +bought_volume / +dealHours
 
         let tempObject = {
             id,
@@ -102,7 +119,7 @@ async function get3cdeals() {
             'closed_at (UTC)': (closed_at != null) ? Utilities.formatDate(new Date(closed_at), "UTC", "MM-dd-yyyy") : null,
             'deal_hours': dealHours,
             completed_safety_orders_count,
-            'pair' : pair.split("_")[1],
+            'pair': pair.split("_")[1],
             from_currency,
             take_profit,
             'base_order_volume': +base_order_volume,
@@ -131,18 +148,109 @@ async function get3cdeals() {
             // account_name,
             // usd_final_profit,
             actual_profit,
-            actual_profit_usd,
+            actual_usd_profit,
             'days_old': deal_days(closed_at),
-            'hourly_per_unit_profit_percent' :  profitPercent,
-            closed_at
+            'hourly_per_unit_profit_percent': profitPercent,
         }
 
         dataArray.push(tempObject);
     })
 
     // Insert new array into spreadsheet
-    await pushToSheet(dealRawTab, dataArray);
+    let tabName = tabs().deal_tab
+    await pushToSheet(tabName, dataArray);
 
+}
+
+/************************************************
+*
+*           3Commas Bots
+*
+ ************************************************/
+
+async function get3cBots() {
+    /**
+     * @description Fetching only the bots data within 3c
+     * 
+     * @apiDocs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/bots_api.md#user-bots-permission-bots_read-security-signed
+     */
+
+    let endpoint = "/ver1/bots"
+    let params = '&bot_id=4416522'
+
+    let response = await query3commasAPI('GET', endpoint, params, false)
+
+    let dataArray = []
+
+    for (bot of response.data) {
+        let {
+            id, account_name, is_enabled,
+            max_safety_orders, active_safety_orders_count,
+            max_active_deals, active_deals_count,
+            name, take_profit,
+            base_order_volume, safety_order_volume,
+            safety_order_step_percentage, type,
+            martingale_volume_coefficient, martingale_step_coefficient,
+            profit_currency, finished_deals_profit_usd,
+            finished_deals_count
+            } = bot
+
+        let calculateMaxDealFunds = (bot) => {
+            let {
+                max_safety_orders,
+                base_order_volume,
+                safety_order_volume,
+                martingale_volume_coefficient,
+            } = bot
+
+            let maxTotal = +safety_order_volume + +base_order_volume;
+            let previousSO = +safety_order_volume
+
+            for (i = 2; i <= max_safety_orders; i++) {
+                previousSO = (previousSO * martingale_volume_coefficient)
+                maxTotal += previousSO
+            }
+            
+            return maxTotal.toFixed(2)
+        }
+
+
+        // bot stats from this endpoint are not benefical as the only additional data it shows is today's profits.
+        // let botStats = await query3commasAPI('GET', '/ver1/bots/stats', `&bot_id=${id}`, false)
+
+        
+        let botObject = {
+            id,
+            name,
+            account_name,
+            is_enabled,
+            type,
+            'max_funds': calculateMaxDealFunds(bot) * max_active_deals,
+            'max_funds_per_deal' : calculateMaxDealFunds(bot),
+            max_safety_orders,
+            active_safety_orders_count,
+            max_active_deals,
+            active_deals_count,
+            take_profit,
+            base_order_volume,
+            safety_order_volume,
+            safety_order_step_percentage,
+            martingale_volume_coefficient,
+            martingale_step_coefficient,
+            profit_currency,
+            finished_deals_profit_usd,
+            finished_deals_count,
+            
+        }
+
+        dataArray.push(botObject)
+    }
+
+    let tab = tabs().bot_tab;
+    // needs to be pushed to a sheet as well
+    pushToSheet(tab, dataArray)
+
+    return dataArray
 }
 
 
@@ -156,21 +264,26 @@ async function get3cdeals() {
 async function get3caccounts() {
     /**
      * @description - Pulling only acccounts to be used in other functions. Currently this does not push to a sheet.
+     * 
+     * @api_docs https://github.com/3commas-io/3commas-official-api-docs/blob/master/accounts_api.md
      */
 
-    var apiCall = await query3c("get", "/public/api/ver1/accounts", "");
+    let endpoint = "/ver1/accounts"
+    let params = ''
+
+    var apiCall = await query3commasAPI("GET", endpoint, params, false);
     let dataArray = []
 
     // Load data into new array with only the columns we want and format them
-    apiCall.forEach(row => {
-        let { id, name, market_code } = row
+    for (account of apiCall.data) {
+        let { id, name, market_code } = account
         let tempObject = {
             id,
             name,
             market_code
         }
         dataArray.push(tempObject);
-    })
+    }
 
     // Not currently inserting into the sheet.
     //pushToSheet('Account (raw)', dataArray);
@@ -181,6 +294,9 @@ async function get3caccounts() {
 async function get3cpie() {
     /**
      * @description Pulling the account balances by account. This is in a loop because the endpoint only allows a single account ID at a time.
+     * 
+     * @api_docs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/accounts_api.md#information-about-all-user-balances-on-specified-exchange--permission-accounts_read-security-signed
+     * 
      */
 
     let accountData = await get3caccounts()
@@ -188,10 +304,13 @@ async function get3cpie() {
 
     for (account of accountData) {
         let { id, name, market_code } = account
-        var apiCall = await query3c("post", "/public/api/ver1/accounts/" + id + "/account_table_data", "");
+
+        let endpoint = `/ver1/accounts/${id}/account_table_data`
+        let params = ''
+        var apiCall = await query3commasAPI("POST", endpoint, params, false);
 
         // Load data into new array with only the columns we want and format them
-        for (row of apiCall) {
+        for (row of apiCall.data) {
 
             let { currency_code, percentage, position, btc_value, usd_value, on_orders } = row
             let tempObject = {
@@ -205,14 +324,13 @@ async function get3cpie() {
                 'usd_value': usd_value.toFixed(2),
                 market_code
             }
-
             dataArray.push(tempObject);
         }
-
     }
 
     // Insert new array into spreadsheet
-    pushToSheet('Account Balances (raw)', dataArray);
+    let tabName = tabs().account_balances_tab
+    pushToSheet(tabName, dataArray);
 
 }
 
@@ -223,57 +341,21 @@ async function get3cpie() {
 *
  ************************************************/
 
-// TODO - Migrate this to the new query function.
 
 async function syncExchangeBalanceTo3c() {
+    /**
+     * @description - reloading 3Commas to sync back with the balance API.
+     * 
+     * @api_docs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/accounts_api.md#load-balances-for-specified-exchange--permission-accounts_read-security-signed
+     */
     // Grab all Account IDs
-    var sheet = SpreadsheetApp.getActive().getSheetByName("Account (raw)");
-    var rangeData = sheet.getDataRange();
-    var lastRow = rangeData.getLastRow();
-    if (lastRow > 1) {
-        var searchRange = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-        // Loop through each ID and hit endpoint to refresh
-        await searchRange.forEach(function (row) {
-            //  Logger.log("/ver1/accounts/"+row[0].toLocaleString().replace(/,/g,"")+"/load_balances");
-            query3c("post", "/public/api/ver1/accounts/" + row[0].toLocaleString().replace(/,/g, "") + "/load_balances", "")
-        });
+    let accountData = await get3caccounts()
+
+    for (account of accountData) {
+        await query3commasAPI("POST", `/ver1/accounts/${account.id}/load_balances`, "", false)
+        
     }
 
 }
 
 
-
-function query3c(requesttype, endPoint, params, query, options) {
-    //var config = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Instructions");
-    const apikey = getScriptProperty('api_id')
-    const apisecret = getScriptProperty('api_secret');
-
-    var baseUrl = "https://api.3commas.io";
-
-    // var pointParams = "?" + params;
-
-    if (params.length > 0) {
-        var pointParams = "?" + params + "&";
-    } else {
-        var pointParams = "?";
-    }
-
-
-    var queryString = endPoint + pointParams + 'api_key=' + apikey + '&secret=' + apisecret; // Modified
-    var signature = Utilities.computeHmacSha256Signature(queryString, apisecret); // Added
-    signature = signature.map(function (e) {
-        return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)
-    }).join(""); // Added
-
-    //headers
-    var hparams = {
-        'method': requesttype,
-        'headers': {
-            'APIKEY': apikey,
-            'Signature': signature
-        },
-        'muteHttpExceptions': true
-    };
-
-    return JSON.parse(UrlFetchApp.fetch(baseUrl + queryString, hparams).getContentText());
-}

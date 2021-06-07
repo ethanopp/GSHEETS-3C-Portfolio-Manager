@@ -13,9 +13,7 @@ function onOpen(e) {
     var ui = SpreadsheetApp.getUi();
     ui.createMenu('3c - Risk Manager')
         .addItem('Sidebar', 'showSidebar')
-        .addItem('Delete API Keys', 'deleteAllScriptProperties')
         .addItem('Update Data', 'sidebar_updateSheet')
-        .addItem('Sync Exchange Balance to 3c', 'sidebar_syncExchangeBalanceTo3c')
         .addSubMenu(ui.createMenu('Automation Settings')
             .addItem('Enable Automation', 'dailySyncAdd')
             .addItem('Disable Automation', 'removeAllTriggers'))
@@ -48,10 +46,10 @@ async function sidebar_get3cpie() {
     sheetsUiMessage('Complete!', 'Finished updating 3Commas account data.')
 }
 
-async function sidebar_syncExchangeBalanceTo3c() {
-    await syncExchangeBalanceTo3c();
-    sheetsUiMessage('Complete!', 'Finished syncing your exchange balance to 3Commas')
-}
+// async function sidebar_syncExchangeBalanceTo3c() {
+//     await syncExchangeBalanceTo3c();
+//     sheetsUiMessage('Complete!', 'Finished syncing your exchange balance to 3Commas')
+// }
 
 
 
