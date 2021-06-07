@@ -11,7 +11,7 @@ function onInstall(e) {
 // add custom menu
 function onOpen(e) {
     var ui = SpreadsheetApp.getUi();
-    ui.createMenu('3c - Risk Manager')
+    ui.createMenu('3C Portfolio Manager')
         .addItem('Sidebar', 'showSidebar')
         .addItem('Update Data', 'sidebar_updateSheet')
         .addSubMenu(ui.createMenu('Automation Settings')

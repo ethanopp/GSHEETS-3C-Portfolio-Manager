@@ -45,7 +45,9 @@ async function get3cdeals() {
 
     let activeDeals = await getActiveDeals();
     let completedDeals = await getCompletedDeals();
-    let accountData = await get3caccounts();
+    //let accountData = await get3caccounts();
+    let botData = await get3cBots();
+    //console.log(botData)
 
     let apiCall = [...activeDeals, ...completedDeals]
 
@@ -55,7 +57,7 @@ async function get3cdeals() {
     apiCall.forEach(row => {
 
         let { 
-            account_id, id, max_safety_orders, 
+            account_id, bot_id, id, max_safety_orders, 
             status, active_safety_orders_count, created_at, 
             updated_at, closed_at, completed_safety_orders_count, 
             pair, take_profit, base_order_volume, 
@@ -66,8 +68,18 @@ async function get3cdeals() {
             martingale_step_coefficient, stop_loss_percentage, from_currency, 
             to_currency, current_price, take_profit_price, stop_loss_price, 
             final_profit_percentage, actual_profit_percentage, bot_name, 
-            account_name, usd_final_profit, actual_profit, actual_usd_profit 
+            account_name, usd_final_profit, actual_profit, actual_usd_profit
         } = row
+
+        // bot API to define if this is a single / composite bot.
+        let bot_type = botData.find(bot => bot.id === bot_id)        
+        if(bot_type != undefined){
+            bot_type = bot_type.type.split('::')[1]
+        } else {
+            bot_type = "deleted"
+        }
+
+        
 
         // commented out the excess columns to save space / speed.
 
@@ -86,36 +98,34 @@ async function get3cdeals() {
             return hours.toFixed(2)
         }
 
-        function deal_days(closed_at) {
+        // function deal_days(closed_at) {
 
-            let endDate;
+        //     let endDate;
 
-            if (closed_at !== null) {
-                closed_at = Date.parse(new Date(closed_at))
-                endDate = Date.parse(new Date())
-            } else {
-                return null
-            }
+        //     if (closed_at !== null) {
+        //         closed_at = Date.parse(new Date(closed_at))
+        //         endDate = Date.parse(new Date())
+        //     } else {
+        //         return null
+        //     }
 
-            let milliseconds = Math.abs(closed_at - endDate);
-            const days = milliseconds / (1000 * 3600 * 24);
-            return Math.ceil(days)
-        }
-
+        //     let milliseconds = Math.abs(closed_at - endDate);
+        //     const days = milliseconds / (1000 * 3600 * 24);
+        //     return Math.ceil(days)
+        // }
+        
         let dealHours = deal_hours(created_at, closed_at)
 
         let profitPercent = (((+actual_profit + +bought_volume) - +bought_volume) / +bought_volume) / +bought_volume / +dealHours
 
         let tempObject = {
             id,
-            // bot_id,
             status,
             'max_safety_orders': +max_safety_orders,
             account_id,
-            'account_name': accountData.find(account => account.id === account_id).name,
-            // active_safety_orders_count,
+            bot_id,
             'created_at (UTC)': Utilities.formatDate(new Date(created_at), "UTC", "MM-dd-yyyy"),
-            'updated_at (UTC)': Utilities.formatDate(new Date(updated_at), "UTC", "MM-dd-yyyy"),
+            'open_1': null,
             'closed_at (UTC)': (closed_at != null) ? Utilities.formatDate(new Date(closed_at), "UTC", "MM-dd-yyyy") : null,
             'deal_hours': dealHours,
             completed_safety_orders_count,
@@ -124,32 +134,21 @@ async function get3cdeals() {
             take_profit,
             'base_order_volume': +base_order_volume,
             'safety_order_volume': +safety_order_volume,
-            'safety_order_step_percentage': +safety_order_step_percentage,
+            'open_2': null,
             'bought_amount': +bought_amount,
             'bought_volume': +bought_volume,
-            // 'bought_average': +bought_average,
             'bought_average_price': +bought_average_price,
             'sold_amount': +sold_amount,
             'sold_volume': +sold_volume,
-            // 'sold_average_price': +sold_average_price,
-            // 'final_profit' : +final_profit,
             'martingale_coefficient': +martingale_coefficient,
             'martingale_volume_coefficient': +martingale_volume_coefficient,
             'martingale_step_coefficient': +martingale_step_coefficient,
-            // 'stop_loss_percentage': +stop_loss_percentage,
-            // profit_currency,
-            // from_currency,
-            // to_currency,
             'current_price': +current_price,
             'take_profit_price': +take_profit_price,
-            // 'stop_loss_price' : +stop_loss_price,
-            // 'final_profit_percentage': +final_profit_percentage,
-            bot_name,
-            // account_name,
-            // usd_final_profit,
+            'bot_name': (bot_type === 'SingleBot') ? bot_name :`${bot_name} - ${pair}`,
             actual_profit,
             actual_usd_profit,
-            'days_old': deal_days(closed_at),
+            'open_3': null,
             'hourly_per_unit_profit_percent': profitPercent,
         }
 
@@ -217,7 +216,7 @@ async function get3cBots() {
 
         // bot stats from this endpoint are not benefical as the only additional data it shows is today's profits.
         // let botStats = await query3commasAPI('GET', '/ver1/bots/stats', `&bot_id=${id}`, false)
-
+        //console.log(type)
         
         let botObject = {
             id,

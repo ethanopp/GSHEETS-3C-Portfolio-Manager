@@ -33,6 +33,7 @@ async function updateSheet(){
     await get3cdeals()
     await get3cpie()
     await get3cBots()
+    
     console.log('updated all data.')
 }
 

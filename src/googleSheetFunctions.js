@@ -129,57 +129,89 @@ function removeEmptyRows(tab) {
 *
  ************************************************/
 
-function filterAccount() {
-    var accountID = SpreadsheetApp.getActive().getRange("Instructions!B15").getValues()[0][0].toLocaleString().replace(/,/g, "");
-    if (accountID.length > 0) {
-        return "&account_id=" + accountID;
-    } else {
-        return "";
+
+  function onEdit(e) {
+  
+    var sh = e.range.getSheet();
+    // link account filter dropdowns
+    if (sh.getName() == 'Risk Monitor') {
+  
+      if (e.range.getA1Notation() == 'E2') {
+        var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
+        SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
+      } else if (e.range.getA1Notation() == 'F2') {
+        var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
+        SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!A2").setValue(account);
+  
+      }
+  
+    } else if (sh.getName() == 'Risk Planner') {
+  
+      if (e.range.getA1Notation() == 'A1') {
+        var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A1").getValue();
+        SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+  
+      } else if (e.range.getA1Notation() == 'A2') {
+        var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A2").getValue();
+        SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(account);
+      }
+  
     }
+  }
 
-}
 
-function loadCurrentRisk() {
-    // Update bankroll 
-    var currentBankroll = SpreadsheetApp.getActive().getRange("Risk Monitor!D4").getValues();
-    var targetBankroll = SpreadsheetApp.getActive().getRange("Risk Planner!A3");
-    targetBankroll.setValues(currentBankroll);
 
-    // Update Deals
-    var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal SO Table!G3:K1003").getValues();
-    var targetRange = SpreadsheetApp.getActive().getRange("Risk Planner!C47:G1047");
-    targetRange.setValues(sourceValues);
-}
+// function filterAccount() {
+//     var accountID = SpreadsheetApp.getActive().getRange("Instructions!B15").getValues()[0][0].toLocaleString().replace(/,/g, "");
+//     if (accountID.length > 0) {
+//         return "&account_id=" + accountID;
+//     } else {
+//         return "";
+//     }
 
-function main() {
-    var dt = new Date();
-    var time_stamp = dt.toLocaleTimeString();
+// }
 
-    // Refresh Accounts
-    var accountSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Account (raw)");
-    var cellVal = '=get3caccounts("' + time_stamp + '")';
-    // Sleep for 5 secs to allow accounts to load in
-    // Utilities.sleep(10*1000);
-    accountSheet.getRange('A1').setValue(cellVal);
-    SpreadsheetApp.flush();
+// function loadCurrentRisk() {
+//     // Update bankroll 
+//     var currentBankroll = SpreadsheetApp.getActive().getRange("Risk Monitor!D4").getValues();
+//     var targetBankroll = SpreadsheetApp.getActive().getRange("Risk Planner!A3");
+//     targetBankroll.setValues(currentBankroll);
 
-    // Refresh Active Deals
-    var dealSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Active Deals (raw)");
-    var cellVal = '=get3cdealsactive("' + time_stamp + '")';
-    dealSheet.getRange('A1').setValue(cellVal);
+//     // Update Deals
+//     var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal SO Table!G3:K1003").getValues();
+//     var targetRange = SpreadsheetApp.getActive().getRange("Risk Planner!C47:G1047");
+//     targetRange.setValues(sourceValues);
+// }
 
-    // Refresh Completed Deals
-    var dealCompleteSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Complete Deals (raw)");
-    var cellVal = '=get3cdealscomplete("' + time_stamp + '")';
-    dealCompleteSheet.getRange('A1').setValue(cellVal);
+// function main() {
+//     var dt = new Date();
+//     var time_stamp = dt.toLocaleTimeString();
 
-    // Sync all exchanges to 3 commas
-    syncExchangeBalanceTo3c()
+//     // Refresh Accounts
+//     var accountSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Account (raw)");
+//     var cellVal = '=get3caccounts("' + time_stamp + '")';
+//     // Sleep for 5 secs to allow accounts to load in
+//     // Utilities.sleep(10*1000);
+//     accountSheet.getRange('A1').setValue(cellVal);
+//     SpreadsheetApp.flush();
 
-    // Show refresh time on dashboard
-    SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Risk Monitor").getRange('I3').setValue("Last Refreshed: " + Date(Date.now()).toString())
+//     // Refresh Active Deals
+//     var dealSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Active Deals (raw)");
+//     var cellVal = '=get3cdealsactive("' + time_stamp + '")';
+//     dealSheet.getRange('A1').setValue(cellVal);
 
-}
+//     // Refresh Completed Deals
+//     var dealCompleteSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Complete Deals (raw)");
+//     var cellVal = '=get3cdealscomplete("' + time_stamp + '")';
+//     dealCompleteSheet.getRange('A1').setValue(cellVal);
+
+//     // Sync all exchanges to 3 commas
+//     syncExchangeBalanceTo3c()
+
+//     // Show refresh time on dashboard
+//     SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Risk Monitor").getRange('I3').setValue("Last Refreshed: " + Date(Date.now()).toString())
+
+// }
 
 
 /**
