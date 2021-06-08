@@ -26,9 +26,40 @@ async function sidebar_updateSheet(){
     sheetsUiMessage('Complete!', 'Finished updating deals and accounts!')
 }
 
+function toggleAutomationOn(){
+    try{
+        addTriggers()
+    } catch(error){
+        console.log(error)
+        throw error
+    }
+
+    return setScriptProperty("automations_enabled", 'true'); 
+
+
+}
+
+function toggleAutomationOff(){
+    try{
+        removeAllTriggers()
+    } catch(error){
+        console.log(error)
+        throw error
+    }
+    return setScriptProperty("automations_enabled", 'false'); 
+
+
+    
+}
+
+function toggleAutomationStatus(){
+    return getScriptProperty('automations_enabled')
+}
+
 async function showSidebar() {
     await setActiveSpreadsheetID();
     const html = HtmlService.createTemplateFromFile('sidebar/sidebar');
+    
     const page = html.evaluate();
     page.setTitle("Savvy Tool Belt");
     SpreadsheetApp.getUi().showSidebar(page);

@@ -6,7 +6,7 @@
     <?!= HtmlService.createHtmlOutputFromFile('sidebar/sidebar-stylesheet').getContent(); ?>
 </head>
 
-<body class="container">
+<body class="container" onload="addChecked()">
     <header>
         <?!= HtmlService.createHtmlOutputFromFile('sidebar/assets/money').getContent(); ?>
         <h1 class="heroText">3C Portfolio <br/> Manager</h1>
@@ -24,9 +24,19 @@
                         <h3>Sync Data</h3>
                         <p>Update your 3Commas Data</p>
                     </div>
-
                 </div>
-
+            </div>
+            <div class="contentOption" id="enableAutomations">
+                <div class="contentSubOptionImg column1">
+                    <label class="switch">
+                        <input type="checkbox" id="automation_Slider" >
+                        <span class="slider round"></span>
+                      </label>
+                </div>
+                <div class="contentSubOptionInfo column2">
+                    <h3>Enable Automations</h3>
+                    <p>Sync every two hours.</p>
+                </div>
             </div>
             <div class="contentOption" id="apiButton">
                 <div class="contentSubOptionImg column1">

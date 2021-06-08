@@ -208,12 +208,7 @@ function onEdit(e) {
             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
-            // Rolling Days
-        } else if (e.range.getA1Notation() == 'G2') {
-            var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!G2").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!G2").setValue(currency);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!G2").setValue(currency);
-        }
+        } 
 
     } else if (sh.getName() == 'Performance Monitor') {
 
@@ -229,12 +224,7 @@ function onEdit(e) {
             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
-            // Rolling Days
-        } else if (e.range.getA1Notation() == 'G2') {
-            var currency = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!G2").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!G2").setValue(currency);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!G2").setValue(currency);
-        }
+        } 
 
     // Selection on Risk Planner
     } else if (sh.getName() == 'Risk Planner') {
