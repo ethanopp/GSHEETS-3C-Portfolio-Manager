@@ -1,6 +1,12 @@
+# Links
+
+- [v5.6 Release](https://docs.google.com/spreadsheets/d/1xcqbVXD6D1J6n3_T73oXnSSr5tKlgBm28iUF7wPtddI/)
+- [Dev Sheet](https://docs.google.com/spreadsheets/d/138dYR2DmTD1yj_eqxzgsBYPWRwy8sdnQ9ZggJZHuPRc)
+
 # KNOW ISSUES
 
 1. If saving the API keys does not prompt you with a confirmation message, switch to a private browser and do it. Google has a bug in passing data from the front end to backend when you have multiple Google accounts.
+2. IF you have a large number of deals the initial sync can lock up google sheets where you need to refresh.
 
 # Permissions
 
