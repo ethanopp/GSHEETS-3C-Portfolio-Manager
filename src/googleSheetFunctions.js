@@ -1,33 +1,3 @@
-// function onEdit(e) {
-
-//     var sh = e.range.getSheet();
-//     // link account filter dropdowns
-//     if (sh.getName() == 'Risk Monitor') {
-  
-//       if (e.range.getA1Notation() == 'F2') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Instructions!A18").setValue(account);
-//       } else if (e.range.getA1Notation() == 'E2') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Instructions!A15").setValue(account);
-  
-//       }
-  
-  
-//     } else if (sh.getName() == 'Instructions') {
-  
-//       if (e.range.getA1Notation() == 'A18') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A18").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(account);
-  
-//       } else if (e.range.getA1Notation() == 'A15') {
-//         var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A15").getValue();
-//         SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-//         // main();
-//       }
-  
-//     }
-//   }
 
 /************************************************
 *
@@ -37,18 +7,16 @@
 
 function pushToSheet(sheetName, data) {
 
-    //console.log(additionalHeaders)
-
     try {
         const ss = SpreadsheetApp.getActive().getSheetByName(sheetName);
         const lastRow = ss.getLastRow()
         const lastCol = ss.getLastColumn();
 
-        // ss.getProtections(SpreadsheetApp.ProtectionType.RANGE).forEach(protection => {
-        //     if (protection.canEdit()) {
-        //         protection.remove();
-        //     }
-        // })
+        ss.getProtections(SpreadsheetApp.ProtectionType.RANGE).forEach(protection => {
+            if (protection.canEdit()) {
+                protection.remove();
+            }
+        })
 
         let output = [];
         if (lastRow > 0 && lastCol > 0) {
@@ -154,6 +122,64 @@ function removeEmptyRows(tab) {
     }
 }
 
+/************************************************
+*
+*           Get Sheet functions
+*
+ ************************************************/
+
+function getSheetHeaders(name) {
+    const spreadsheet = getDefaultSpreadsheetId();
+    let ss = spreadsheet.getSheetByName(name);
+    let lastCol = ss.getLastColumn();
+
+    // this assumes your sheet headers are all stores in the first row of your spreadsheet.
+    let sheetHeaders = ss.getRange(1, 1, 1, lastCol).getValues();
+    return sheetHeaders[0];
+}
+function getSpreadsheetDataByName(tabName) {
+    /** 
+    * @param {string} tabName - This is the tab name from the tabNamesReturn() function.
+    * @description - Used to fetch the sheet data directly from the spreadsheet. 
+    */
+
+    const ss = SpreadsheetApp.getActive().getSheetByName(tabName);
+    let lastRow = ss.getLastRow();
+    let lastCol = ss.getDataRange().getLastColumn();
+
+    if (lastRow > 1) {
+        getSheetHeaders = (tabName) => {
+            let ss = SpreadsheetApp.getActive().getSheetByName(tabName);
+            let lastCol = ss.getLastColumn();
+        
+            // this assumes your sheet headers are all stores in the first row of your spreadsheet.
+            let sheetHeaders = ss.getRange(1, 1, 1, lastCol).getValues();
+            return sheetHeaders[0];
+        };
+
+        let headers = getSheetHeaders(tabName)
+
+        let output = [];
+        let spreadsheetData = ss.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+        // turning each cell into a key / value on an object for that row.
+        spreadsheetData.forEach(row => {
+            let object = {}
+            row.map((cell, index) => {
+                object[headers[index]] = cell
+            })
+            output.push(object)
+        })
+        SpreadsheetApp.flush();
+
+        return output;
+    } else {
+        return [];
+    }
+
+
+}
+
 
 /************************************************
 *
@@ -161,54 +187,139 @@ function removeEmptyRows(tab) {
 *
  ************************************************/
 
-function filterAccount() {
-    var accountID = SpreadsheetApp.getActive().getRange("Instructions!B15").getValues()[0][0].toLocaleString().replace(/,/g, "");
-    if (accountID.length > 0) {
-        return "&account_id=" + accountID;
-    } else {
-        return "";
+
+function onEdit(e) {
+
+    var sh = e.range.getSheet();
+    // link account filter dropdowns
+
+    // Selection on Risk Monitor or Performance Monitor
+    if (sh.getName() == 'Risk Monitor') {
+
+        // Account Filter
+        if (e.range.getA1Notation() == 'E2') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
+            // Currency Filter
+        } else if (e.range.getA1Notation() == 'F2') {
+            var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
+        } 
+
+    } else if (sh.getName() == 'Performance Monitor') {
+
+        // Account Filter
+        if (e.range.getA1Notation() == 'E2') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
+            // Currency Filter
+        } else if (e.range.getA1Notation() == 'F2') {
+            var currency = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
+        } 
+
+    // Selection on Risk Planner
+    } else if (sh.getName() == 'Risk Planner') {
+        if (e.range.getA1Notation() == 'A1') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+        } else if (e.range.getA1Notation() == 'A2') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+        }
     }
-
 }
 
+
+/**
+ * Populates the risk planner tab.
+ *
+ * @return Populates the risk planner tab.
+ *
+ */
 function loadCurrentRisk() {
-    // Update bankroll 
-    var currentBankroll = SpreadsheetApp.getActive().getRange("Risk Monitor!D4").getValues();
-    var targetBankroll = SpreadsheetApp.getActive().getRange("Risk Planner!A3");
-    targetBankroll.setValues(currentBankroll);
+    let botTab = tabs().bot_tab
 
-    // Update Deals
-    var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal SO Table!G3:K1003").getValues();
-    var targetRange = SpreadsheetApp.getActive().getRange("Risk Planner!C47:G1047");
-    targetRange.setValues(sourceValues);
+    // Update bankroll 
+    var currentBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Monitor').getRange("D4").getValue();
+    var targetBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("A3");
+    targetBankroll.setValue(currentBankroll);
+
+    let botData = getSpreadsheetDataByName(botTab)
+        .filter(bot => bot.is_enabled === true)
+    
+    let dataArray = [];
+    botData.forEach(bot => {
+        dataArray.push([
+            bot.name,
+            bot.max_active_deals,
+            bot.max_safety_orders,
+            bot.martingale_volume_coefficient,
+            bot.base_order_volume,
+            bot.safety_order_volume
+        ])
+    })
+
+    //return dataArray
+
+    var targetRange = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Risk Planner')
+
+    targetRange.getRange(47, 3, dataArray.length, dataArray[0].length)
+                .setValues(dataArray)
+                .setHorizontalAlignment("center")
+
+    //var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal Stats (query)!F3:K50").getValues();
+
+
 }
 
-function main() {
-    var dt = new Date();
-    var time_stamp = dt.toLocaleTimeString();
+// function main() {
+//     var dt = new Date();
+//     var time_stamp = dt.toLocaleTimeString();
 
-    // Refresh Accounts
-    var accountSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Account (raw)");
-    var cellVal = '=get3caccounts("' + time_stamp + '")';
-    // Sleep for 5 secs to allow accounts to load in
-    // Utilities.sleep(10*1000);
-    accountSheet.getRange('A1').setValue(cellVal);
-    SpreadsheetApp.flush();
+//     // Refresh Accounts
+//     var accountSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Account (raw)");
+//     var cellVal = '=get3caccounts("' + time_stamp + '")';
+//     // Sleep for 5 secs to allow accounts to load in
+//     // Utilities.sleep(10*1000);
+//     accountSheet.getRange('A1').setValue(cellVal);
+//     SpreadsheetApp.flush();
 
-    // Refresh Active Deals
-    var dealSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Active Deals (raw)");
-    var cellVal = '=get3cdealsactive("' + time_stamp + '")';
-    dealSheet.getRange('A1').setValue(cellVal);
+//     // Refresh Active Deals
+//     var dealSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Active Deals (raw)");
+//     var cellVal = '=get3cdealsactive("' + time_stamp + '")';
+//     dealSheet.getRange('A1').setValue(cellVal);
 
-    // Refresh Completed Deals
-    var dealCompleteSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Complete Deals (raw)");
-    var cellVal = '=get3cdealscomplete("' + time_stamp + '")';
-    dealCompleteSheet.getRange('A1').setValue(cellVal);
+//     // Refresh Completed Deals
+//     var dealCompleteSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Complete Deals (raw)");
+//     var cellVal = '=get3cdealscomplete("' + time_stamp + '")';
+//     dealCompleteSheet.getRange('A1').setValue(cellVal);
 
-    // Sync all exchanges to 3 commas
-    syncExchangeBalanceTo3c()
+//     // Sync all exchanges to 3 commas
+//     syncExchangeBalanceTo3c()
 
-    // Show refresh time on dashboard
-    SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Risk Monitor").getRange('I3').setValue("Last Refreshed: " + Date(Date.now()).toString())
+//     // Show refresh time on dashboard
+//     SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Risk Monitor").getRange('I3').setValue("Last Refreshed: " + Date(Date.now()).toString())
 
+// }
+
+
+/**
+ * Returns today's date in UTC
+ *
+ * @return Returns today's date in UTC
+ * @customfunction
+ */
+function utc_today() {
+    return Utilities.formatDate(new Date(), "UTC", "yyyy-MM-dd")
 }

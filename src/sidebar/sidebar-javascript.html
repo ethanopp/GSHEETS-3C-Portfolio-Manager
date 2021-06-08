@@ -1,5 +1,16 @@
 <script>
 
+    async function addChecked() {
+        await google.script.run
+            .withSuccessHandler((e) => {
+                console.log(`Automation is ${e}`)
+                if(e === 'true'){
+                    document.getElementById('automation_Slider').checked = e
+                }
+            })
+            .toggleAutomationStatus()
+    }
+
 
     document.getElementById('apiButton').addEventListener("click", () => {
         document.getElementById('menuDiv').classList.add('hidden')
@@ -33,6 +44,41 @@
             .sidebar_updateSheet()
 
     })
+
+    document.getElementById('automation_Slider').addEventListener('click', () => {
+        let is_checked = document.getElementById('automation_Slider').checked
+        console.log({ is_checked })
+
+        if(is_checked){
+            google.script.run
+            .withSuccessHandler(() => {
+                console.log('turned on the automation')
+            })
+            .withFailureHandler((e) => {
+                console.error(e)
+                document.getElementById('automation_Slider').checked = false
+                google.script.run.sheetsUiMessage('Error', `Failed to turn on triggers - ${e}`)
+
+            })
+            .toggleAutomationOn()
+        } else {
+            google.script.run
+            .withSuccessHandler(() => {
+                console.log('turned off the automation')
+            })
+            .withFailureHandler((e) => {
+                console.error(e)
+                document.getElementById('automation_Slider').checked = true
+                google.script.run.sheetsUiMessage('Error', `Failed to turn off triggers - ${e}`)
+
+            })
+            .toggleAutomationOff()
+        }
+
+
+
+    })
+
 
     document.getElementById('api_key_submit_button').addEventListener('click', () => {
         let api_id = document.getElementById('api_id').value

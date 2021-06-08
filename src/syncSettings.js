@@ -5,11 +5,14 @@
  ************************************************/
 
  function addTriggers() {
+     console.info('Added triggers')
     removeAllTriggers();
     dailySyncAdd();
 }
 
 function removeAllTriggers() {
+    console.info('Removed triggers')
+
     var allTriggers = ScriptApp.getProjectTriggers();
     for (var i = 0; i < allTriggers.length; i++) {
         ScriptApp.deleteTrigger(allTriggers[i]);
@@ -17,19 +20,21 @@ function removeAllTriggers() {
 }
 
 function dailySyncAdd() {
-    //creating a trigger to run at noon
+    //creating a trigger to run every 3 hours
     ScriptApp.newTrigger("updateSheet")
         .timeBased()
-        .atHour(3)
-        .nearMinute(45)
-        .everyDays(1)
+        .everyHours(2)
         .create();
 }
 
 async function updateSheet(){
+
+    // TODO - add error handling here for each to finish successful
     await syncExchangeBalanceTo3c()
     await get3cdeals()
     await get3cpie()
+    await get3cBots()
+    
     console.log('updated all data.')
 }
 

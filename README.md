@@ -1,12 +1,18 @@
+# Links
+
+- [v5.6 Release](https://docs.google.com/spreadsheets/d/1xcqbVXD6D1J6n3_T73oXnSSr5tKlgBm28iUF7wPtddI/)
+- [Dev Sheet](https://docs.google.com/spreadsheets/d/138dYR2DmTD1yj_eqxzgsBYPWRwy8sdnQ9ZggJZHuPRc)
+
 # KNOW ISSUES
 
 1. If saving the API keys does not prompt you with a confirmation message, switch to a private browser and do it. Google has a bug in passing data from the front end to backend when you have multiple Google accounts.
+2. IF you have a large number of deals the initial sync can lock up google sheets where you need to refresh.
 
 # Permissions
 
 The 3C Risk Manager integration requests multiple permissions through Google Sheets. These permissions are only to fetch data, automate the fetching, and modify your sheet. A description of each permission and purpose is below.
 
-## Connect to an external service
+## Connect to an external serviceq
 This permission is used to access the 3Commas API. You can find all this code located in the `apiHandler.js` and `3commas.js` files. Only read permission is granted to this integration so no changes can be made on your behalf.
 
 ## See, edit, create, and delete your spreadsheets in Google Drive

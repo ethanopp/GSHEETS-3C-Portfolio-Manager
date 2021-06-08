@@ -11,7 +11,7 @@ function onInstall(e) {
 // add custom menu
 function onOpen(e) {
     var ui = SpreadsheetApp.getUi();
-    ui.createMenu('3c - Risk Manager')
+    ui.createMenu('3C Portfolio Manager')
         .addItem('Sidebar', 'showSidebar')
         .addItem('Update Data', 'sidebar_updateSheet')
         .addSubMenu(ui.createMenu('Automation Settings')
@@ -26,9 +26,40 @@ async function sidebar_updateSheet(){
     sheetsUiMessage('Complete!', 'Finished updating deals and accounts!')
 }
 
+function toggleAutomationOn(){
+    try{
+        addTriggers()
+    } catch(error){
+        console.log(error)
+        throw error
+    }
+
+    return setScriptProperty("automations_enabled", 'true'); 
+
+
+}
+
+function toggleAutomationOff(){
+    try{
+        removeAllTriggers()
+    } catch(error){
+        console.log(error)
+        throw error
+    }
+    return setScriptProperty("automations_enabled", 'false'); 
+
+
+    
+}
+
+function toggleAutomationStatus(){
+    return getScriptProperty('automations_enabled')
+}
+
 async function showSidebar() {
     await setActiveSpreadsheetID();
     const html = HtmlService.createTemplateFromFile('sidebar/sidebar');
+    
     const page = html.evaluate();
     page.setTitle("Savvy Tool Belt");
     SpreadsheetApp.getUi().showSidebar(page);
@@ -45,6 +76,11 @@ async function sidebar_get3cpie() {
     await get3cpie();
     sheetsUiMessage('Complete!', 'Finished updating 3Commas account data.')
 }
+
+// async function sidebar_syncExchangeBalanceTo3c() {
+//     await syncExchangeBalanceTo3c();
+//     sheetsUiMessage('Complete!', 'Finished syncing your exchange balance to 3Commas')
+// }
 
 
 
