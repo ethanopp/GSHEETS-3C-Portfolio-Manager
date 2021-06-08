@@ -1,3 +1,17 @@
+function calculateMaxDealFunds(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient){
+    let maxTotal = +safety_order_volume + +base_order_volume;
+    let previousSO = +safety_order_volume
+
+    for (i = 2; i <= max_safety_orders; i++) {
+        previousSO = (previousSO * martingale_volume_coefficient)
+        maxTotal += previousSO
+    }
+    
+    return maxTotal.toFixed(2)
+}
+
+
+
 /************************************************
 *
 *           3Commas Deals
@@ -115,6 +129,7 @@ async function get3cdeals() {
         // }
         
         let dealHours = deal_hours(created_at, closed_at)
+        let max_deal_funds = calculateMaxDealFunds(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient)
 
         let profitPercent = (((+actual_profit + +bought_volume) - +bought_volume) / +bought_volume) / +bought_volume / +dealHours
 
@@ -134,7 +149,7 @@ async function get3cdeals() {
             take_profit,
             'base_order_volume': +base_order_volume,
             'safety_order_volume': +safety_order_volume,
-            'open_2': null,
+            'max_deal_funds': max_deal_funds,
             'bought_amount': +bought_amount,
             'bought_volume': +bought_volume,
             'bought_average_price': +bought_average_price,
@@ -183,7 +198,7 @@ async function get3cBots() {
 
     for (bot of response.data) {
         let {
-            id, account_name, is_enabled,
+            id, account_id, account_name, is_enabled,
             max_safety_orders, active_safety_orders_count,
             max_active_deals, active_deals_count,
             name, take_profit,
@@ -191,41 +206,33 @@ async function get3cBots() {
             safety_order_step_percentage, type,
             martingale_volume_coefficient, martingale_step_coefficient,
             profit_currency, finished_deals_profit_usd,
-            finished_deals_count
+            finished_deals_count, pairs
             } = bot
 
-        let calculateMaxDealFunds = (bot) => {
-            let {
-                max_safety_orders,
-                base_order_volume,
-                safety_order_volume,
-                martingale_volume_coefficient,
-            } = bot
+        
 
-            let maxTotal = +safety_order_volume + +base_order_volume;
-            let previousSO = +safety_order_volume
+        let maxDealFunds = calculateMaxDealFunds(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient)
+        //max_active_deals = 15
 
-            for (i = 2; i <= max_safety_orders; i++) {
-                previousSO = (previousSO * martingale_volume_coefficient)
-                maxTotal += previousSO
-            }
-            
-            return maxTotal.toFixed(2)
-        }
+        let max_inactive_funds = maxDealFunds * (max_active_deals - active_deals_count)
 
 
         // bot stats from this endpoint are not benefical as the only additional data it shows is today's profits.
         // let botStats = await query3commasAPI('GET', '/ver1/bots/stats', `&bot_id=${id}`, false)
-        //console.log(type)
         
         let botObject = {
             id,
+            account_id,
             name,
-            account_name,
+            //account_name,
             is_enabled,
             type,
-            'max_funds': calculateMaxDealFunds(bot) * max_active_deals,
-            'max_funds_per_deal' : calculateMaxDealFunds(bot),
+            'from_currency': pairs[0].split('_'),
+            'max_funds': maxDealFunds * max_active_deals,
+            'max_funds_per_deal' : maxDealFunds,
+            'max_inactive_funds': max_inactive_funds,
+            'enabled_inactive_funds': (is_enabled == true) ? +max_inactive_funds : 0 ,
+            'enabled_active_funds': (is_enabled == true) ? +maxDealFunds * active_deals_count : 0 ,
             max_safety_orders,
             active_safety_orders_count,
             max_active_deals,

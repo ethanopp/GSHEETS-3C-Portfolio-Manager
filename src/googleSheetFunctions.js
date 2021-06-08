@@ -122,6 +122,64 @@ function removeEmptyRows(tab) {
     }
 }
 
+/************************************************
+*
+*           Get Sheet functions
+*
+ ************************************************/
+
+function getSheetHeaders(name) {
+    const spreadsheet = getDefaultSpreadsheetId();
+    let ss = spreadsheet.getSheetByName(name);
+    let lastCol = ss.getLastColumn();
+
+    // this assumes your sheet headers are all stores in the first row of your spreadsheet.
+    let sheetHeaders = ss.getRange(1, 1, 1, lastCol).getValues();
+    return sheetHeaders[0];
+}
+function getSpreadsheetDataByName(tabName) {
+    /** 
+    * @param {string} tabName - This is the tab name from the tabNamesReturn() function.
+    * @description - Used to fetch the sheet data directly from the spreadsheet. 
+    */
+
+    const ss = SpreadsheetApp.getActive().getSheetByName(tabName);
+    let lastRow = ss.getLastRow();
+    let lastCol = ss.getDataRange().getLastColumn();
+
+    if (lastRow > 1) {
+        getSheetHeaders = (tabName) => {
+            let ss = SpreadsheetApp.getActive().getSheetByName(tabName);
+            let lastCol = ss.getLastColumn();
+        
+            // this assumes your sheet headers are all stores in the first row of your spreadsheet.
+            let sheetHeaders = ss.getRange(1, 1, 1, lastCol).getValues();
+            return sheetHeaders[0];
+        };
+
+        let headers = getSheetHeaders(tabName)
+
+        let output = [];
+        let spreadsheetData = ss.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+        // turning each cell into a key / value on an object for that row.
+        spreadsheetData.forEach(row => {
+            let object = {}
+            row.map((cell, index) => {
+                object[headers[index]] = cell
+            })
+            output.push(object)
+        })
+        SpreadsheetApp.flush();
+
+        return output;
+    } else {
+        return [];
+    }
+
+
+}
+
 
 /************************************************
 *
@@ -130,58 +188,110 @@ function removeEmptyRows(tab) {
  ************************************************/
 
 
-  function onEdit(e) {
-  
+function onEdit(e) {
+
     var sh = e.range.getSheet();
     // link account filter dropdowns
+
+    // Selection on Risk Monitor or Performance Monitor
     if (sh.getName() == 'Risk Monitor') {
-  
-      if (e.range.getA1Notation() == 'E2') {
-        var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
-        SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
-      } else if (e.range.getA1Notation() == 'F2') {
-        var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
-        SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!A2").setValue(account);
-  
-      }
-  
+
+        // Account Filter
+        if (e.range.getA1Notation() == 'E2') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
+            // Currency Filter
+        } else if (e.range.getA1Notation() == 'F2') {
+            var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
+            // Rolling Days
+        } else if (e.range.getA1Notation() == 'G2') {
+            var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!G2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!G2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!G2").setValue(currency);
+        }
+
+    } else if (sh.getName() == 'Performance Monitor') {
+
+        // Account Filter
+        if (e.range.getA1Notation() == 'E2') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
+            // Currency Filter
+        } else if (e.range.getA1Notation() == 'F2') {
+            var currency = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
+            // Rolling Days
+        } else if (e.range.getA1Notation() == 'G2') {
+            var currency = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!G2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!G2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!G2").setValue(currency);
+        }
+
+    // Selection on Risk Planner
     } else if (sh.getName() == 'Risk Planner') {
-  
-      if (e.range.getA1Notation() == 'A1') {
-        var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A1").getValue();
-        SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-  
-      } else if (e.range.getA1Notation() == 'A2') {
-        var account = SpreadsheetApp.getActiveSheet().getRange("Instructions!A2").getValue();
-        SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(account);
-      }
-  
+        if (e.range.getA1Notation() == 'A1') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+        } else if (e.range.getA1Notation() == 'A2') {
+            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").getValue();
+            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+        }
     }
-  }
+}
 
 
+/**
+ * Populates the risk planner tab.
+ *
+ * @return Populates the risk planner tab.
+ *
+ */
+function loadCurrentRisk() {
+    let botTab = tabs().bot_tab
 
-// function filterAccount() {
-//     var accountID = SpreadsheetApp.getActive().getRange("Instructions!B15").getValues()[0][0].toLocaleString().replace(/,/g, "");
-//     if (accountID.length > 0) {
-//         return "&account_id=" + accountID;
-//     } else {
-//         return "";
-//     }
+    // Update bankroll 
+    var currentBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Monitor').getRange("D4").getValue();
+    var targetBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("A3");
+    targetBankroll.setValue(currentBankroll);
 
-// }
+    let botData = getSpreadsheetDataByName(botTab)
+        .filter(bot => bot.is_enabled === true)
+    
+    let dataArray = [];
+    botData.forEach(bot => {
+        dataArray.push([
+            bot.name,
+            bot.max_active_deals,
+            bot.max_safety_orders,
+            bot.martingale_volume_coefficient,
+            bot.base_order_volume,
+            bot.safety_order_volume
+        ])
+    })
 
-// function loadCurrentRisk() {
-//     // Update bankroll 
-//     var currentBankroll = SpreadsheetApp.getActive().getRange("Risk Monitor!D4").getValues();
-//     var targetBankroll = SpreadsheetApp.getActive().getRange("Risk Planner!A3");
-//     targetBankroll.setValues(currentBankroll);
+    //return dataArray
 
-//     // Update Deals
-//     var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal SO Table!G3:K1003").getValues();
-//     var targetRange = SpreadsheetApp.getActive().getRange("Risk Planner!C47:G1047");
-//     targetRange.setValues(sourceValues);
-// }
+    var targetRange = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Risk Planner')
+
+    targetRange.getRange(47, 3, dataArray.length, dataArray[0].length)
+                .setValues(dataArray)
+                .setHorizontalAlignment("center")
+
+    //var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal Stats (query)!F3:K50").getValues();
+
+
+}
 
 // function main() {
 //     var dt = new Date();
@@ -220,6 +330,6 @@ function removeEmptyRows(tab) {
  * @return Returns today's date in UTC
  * @customfunction
  */
- function utc_today() {
+function utc_today() {
     return Utilities.formatDate(new Date(), "UTC", "yyyy-MM-dd")
-  }
+}
