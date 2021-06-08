@@ -12,7 +12,7 @@
 
 The 3C Risk Manager integration requests multiple permissions through Google Sheets. These permissions are only to fetch data, automate the fetching, and modify your sheet. A description of each permission and purpose is below.
 
-## Connect to an external service
+## Connect to an external serviceq
 This permission is used to access the 3Commas API. You can find all this code located in the `apiHandler.js` and `3commas.js` files. Only read permission is granted to this integration so no changes can be made on your behalf.
 
 ## See, edit, create, and delete your spreadsheets in Google Drive
