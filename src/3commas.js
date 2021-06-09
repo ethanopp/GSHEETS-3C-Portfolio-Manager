@@ -189,14 +189,14 @@ async function get3cBots() {
      * @apiDocs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/bots_api.md#user-bots-permission-bots_read-security-signed
      */
 
-    let endpoint = "/ver1/bots"
-    let params = '&bot_id=4416522'
-
-    let response = await query3commasAPI('GET', endpoint, params, false)
-
-    let dataArray = []
-
-    for (bot of response.data) {
+     let endpoint = "/ver1/bots"
+     let params = ''
+ 
+     let response = await query3commasAPI('GET', endpoint, params, true)
+ 
+     let dataArray = []
+ 
+     for (bot of response) {
         let {
             id, account_id, account_name, is_enabled,
             max_safety_orders, active_safety_orders_count,

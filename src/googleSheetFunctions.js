@@ -247,7 +247,7 @@ function onEdit(e) {
  * @return Populates the risk planner tab.
  *
  */
-function loadCurrentRisk() {
+ function loadCurrentRisk() {
     let botTab = tabs().bot_tab
 
     // Update bankroll 
@@ -261,23 +261,22 @@ function loadCurrentRisk() {
     
     var targetRange = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Risk Planner')
 
-    targetRange.getRange(47, 3, 1000, 6).clear()
+    targetRange.getRange(47, 3, 1000, 7).clear()
 
     console.log({accountID})
     let botData = getSpreadsheetDataByName(botTab)
-        .filter(bot => { if (bot.is_enabled == true && bot.from_currency == currency) { return true } })
+        .filter(bot => { if (bot.from_currency == currency) { return true } })
 
         if(accountID != ''){
             botData.filter(bot => bot.account_id == accountID)
         }
         
-        
-
     let dataArray = [];
 
     if (botData != [] && botData.length > 0) {
         botData.forEach(bot => {
             dataArray.push([
+                bot.is_enabled,
                 bot.name,
                 bot.max_active_deals,
                 bot.max_safety_orders,
@@ -296,13 +295,6 @@ function loadCurrentRisk() {
             .setValues(dataArray)
             .setHorizontalAlignment("center")
     }
-
-
-
-
-    //var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal Stats (query)!F3:K50").getValues();
-
-
 }
 
 // function main() {
