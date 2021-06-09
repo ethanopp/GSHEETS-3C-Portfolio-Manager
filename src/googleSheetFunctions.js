@@ -151,7 +151,7 @@ function getSpreadsheetDataByName(tabName) {
         getSheetHeaders = (tabName) => {
             let ss = SpreadsheetApp.getActive().getSheetByName(tabName);
             let lastCol = ss.getLastColumn();
-        
+
             // this assumes your sheet headers are all stores in the first row of your spreadsheet.
             let sheetHeaders = ss.getRange(1, 1, 1, lastCol).getValues();
             return sheetHeaders[0];
@@ -208,7 +208,7 @@ function onEdit(e) {
             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
-        } 
+        }
 
     } else if (sh.getName() == 'Performance Monitor') {
 
@@ -224,9 +224,9 @@ function onEdit(e) {
             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
-        } 
+        }
 
-    // Selection on Risk Planner
+        // Selection on Risk Planner
     } else if (sh.getName() == 'Risk Planner') {
         if (e.range.getA1Notation() == 'A1') {
             var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").getValue();
@@ -251,32 +251,54 @@ function loadCurrentRisk() {
     let botTab = tabs().bot_tab
 
     // Update bankroll 
-    var currentBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Monitor').getRange("D4").getValue();
+    var currentBankroll = +SpreadsheetApp.getActive().getSheetByName('Risk Monitor').getRange("D4").getValue();
     var targetBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("A3");
     targetBankroll.setValue(currentBankroll);
 
-    let botData = getSpreadsheetDataByName(botTab)
-        .filter(bot => bot.is_enabled === true)
+    const currency = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("B1").getValue();
+    const accountID = SpreadsheetApp.getActive().getSheetByName('Risk Monitor').getRange("E3").getValue();
+
     
-    let dataArray = [];
-    botData.forEach(bot => {
-        dataArray.push([
-            bot.name,
-            bot.max_active_deals,
-            bot.max_safety_orders,
-            bot.martingale_volume_coefficient,
-            bot.base_order_volume,
-            bot.safety_order_volume
-        ])
-    })
-
-    //return dataArray
-
     var targetRange = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Risk Planner')
 
-    targetRange.getRange(47, 3, dataArray.length, dataArray[0].length)
-                .setValues(dataArray)
-                .setHorizontalAlignment("center")
+    targetRange.getRange(47, 3, 1000, 6).clear()
+
+    console.log({accountID})
+    let botData = getSpreadsheetDataByName(botTab)
+        .filter(bot => { if (bot.is_enabled == true && bot.from_currency == currency) { return true } })
+
+        if(accountID != ''){
+            botData.filter(bot => bot.account_id == accountID)
+        }
+        
+        
+
+    let dataArray = [];
+
+    if (botData != [] && botData.length > 0) {
+        botData.forEach(bot => {
+            dataArray.push([
+                bot.name,
+                bot.max_active_deals,
+                bot.max_safety_orders,
+                bot.martingale_volume_coefficient,
+                bot.base_order_volume,
+                bot.safety_order_volume
+            ])
+        })
+
+        //return dataArray
+
+
+        
+
+        targetRange.getRange(47, 3, dataArray.length, dataArray[0].length)
+            .setValues(dataArray)
+            .setHorizontalAlignment("center")
+    }
+
+
+
 
     //var sourceValues = SpreadsheetApp.getActive().getRange("Active Deal Stats (query)!F3:K50").getValues();
 
