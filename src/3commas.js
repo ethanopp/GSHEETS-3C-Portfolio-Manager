@@ -1,16 +1,54 @@
-function calculateMaxDealFunds(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient){
-    let maxTotal = +safety_order_volume + +base_order_volume;
-    let previousSO = +safety_order_volume
+function calculateMaxFunds_bot(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient){
 
-    for (i = 2; i <= max_safety_orders; i++) {
-        previousSO = (previousSO * martingale_volume_coefficient)
-        maxTotal += previousSO
+    let maxTotal = +base_order_volume
+    let nextSO = +safety_order_volume; 
+
+    for (i = 1; i <= max_safety_orders; i++) {
+        maxTotal += nextSO
+        nextSO = (nextSO * martingale_volume_coefficient)
     }
     
     return maxTotal.toFixed(2)
 }
 
+function calculateMaxFunds_Deals(bought_volume, base_order_volume, safety_order_volume, max_safety_orders, completed_safety_orders, martingale_volume_coefficient, market_order_data){
+    let maxTotal = +base_order_volume
+    let nextSO = +safety_order_volume;
 
+    // set maxTotal if there's no more safety orders available and something was bought (ie a deal, a bot has nothing bought)
+    // else add remaining safety orders
+    if (max_safety_orders <= completed_safety_orders) {
+      if (+bought_volume > 0)
+        maxTotal = +bought_volume;
+    }
+    else {
+      for (i = 0; i < max_safety_orders; i++) {
+        /* Once all filled SO are calculated, replace with actual bought volume to take filled manual SO and/or rounding into account
+           before adding remaining safety orders.
+           There are still rounding errors for subsequent SO - 3c rounds up to next buyable fraction of a coin and we don't 
+           account for that*/
+        if (i - completed_safety_orders == 0 && bought_volume > 0)
+          maxTotal = +bought_volume;     
+        
+        maxTotal += nextSO
+        nextSO = (nextSO * martingale_volume_coefficient)
+      }
+    }
+    
+    // add unfilled manual safety orders
+    if (!(typeof market_order_data === 'undefined')){
+      for (order of market_order_data) {
+        let {
+          deal_order_type, status_string, quantity, quantity_remaining, total, rate, average_price
+        } = order
+      
+        if(status_string == "Active"){
+          maxTotal += +quantity_remaining * +rate
+        }
+      }
+    }
+    return maxTotal.toFixed(2)
+}
 
 /************************************************
 *
@@ -51,6 +89,34 @@ async function getCompletedDeals() {
         
 }
 
+async function getMarketOrders(deal_id){
+    /**
+     * @description Fetching market orders for bots that are active and have active market orders
+     * 
+     * @api_docs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/deals_api.md#deal-safety-orders-permission-bots_read-security-signed
+     */
+    let endpoint = `/ver1/deals/${deal_id}/market_orders`
+    let params = ``
+
+    let dataArray = []
+
+    let apiCall = await query3commasAPI('GET', endpoint, params, false)
+      for(order of apiCall.data) {
+          let {deal_order_type, status_string, quantity, quantity_remaining, total, rate, average_price} = order
+
+          if(deal_order_type === "Manual Safety"){
+          dataArray.push({
+            deal_order_type, status_string, quantity, quantity_remaining, total, rate, average_price
+          })
+          }
+
+
+
+        }
+
+        return dataArray
+}
+
 async function get3cdeals() {
     /**
      * @description - The primary deal fetch function. This pulls both Active and Completed deals.
@@ -61,14 +127,13 @@ async function get3cdeals() {
     let completedDeals = await getCompletedDeals();
     //let accountData = await get3caccounts();
     let botData = await get3cBots();
-    //console.log(botData)
 
     let apiCall = [...activeDeals, ...completedDeals]
 
     let dataArray = []
 
     // Load data into new array with only the columns we want and format them
-    apiCall.forEach(row => {
+    for (row of apiCall) {
 
         let { 
             account_id, bot_id, id, max_safety_orders, 
@@ -82,7 +147,8 @@ async function get3cdeals() {
             martingale_step_coefficient, stop_loss_percentage, from_currency, 
             to_currency, current_price, take_profit_price, stop_loss_price, 
             final_profit_percentage, actual_profit_percentage, bot_name, 
-            account_name, usd_final_profit, actual_profit, actual_usd_profit
+            account_name, usd_final_profit, actual_profit, actual_usd_profit,
+            completed_manual_safety_orders_count, active_manual_safety_orders
         } = row
 
         // bot API to define if this is a single / composite bot.
@@ -93,7 +159,17 @@ async function get3cdeals() {
             bot_type = "deleted"
         }
 
-        
+        let market_order_data;
+        let max_deal_funds = 0 ;
+        if(status === 'active' ){
+
+            if(active_manual_safety_orders > 0){
+                market_order_data = await getMarketOrders(id)
+            }
+
+           max_deal_funds = calculateMaxFunds_Deals(bought_volume, base_order_volume, safety_order_volume, max_safety_orders, completed_safety_orders_count, martingale_volume_coefficient, market_order_data)
+        }
+
 
         // commented out the excess columns to save space / speed.
 
@@ -111,25 +187,8 @@ async function get3cdeals() {
             const hours = milliseconds / 36e5;
             return hours.toFixed(2)
         }
-
-        // function deal_days(closed_at) {
-
-        //     let endDate;
-
-        //     if (closed_at !== null) {
-        //         closed_at = Date.parse(new Date(closed_at))
-        //         endDate = Date.parse(new Date())
-        //     } else {
-        //         return null
-        //     }
-
-        //     let milliseconds = Math.abs(closed_at - endDate);
-        //     const days = milliseconds / (1000 * 3600 * 24);
-        //     return Math.ceil(days)
-        // }
         
         let dealHours = deal_hours(created_at, closed_at)
-        let max_deal_funds = calculateMaxDealFunds(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient)
 
         let profitPercent = (((+actual_profit + +bought_volume) - +bought_volume) / +bought_volume) / +bought_volume / +dealHours
 
@@ -168,7 +227,7 @@ async function get3cdeals() {
         }
 
         dataArray.push(tempObject);
-    })
+    }
 
     // Insert new array into spreadsheet
     let tabName = tabs().deal_tab
@@ -211,7 +270,7 @@ async function get3cBots() {
 
         
 
-        let maxDealFunds = calculateMaxDealFunds(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient)
+        let maxDealFunds = calculateMaxFunds_bot(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient)
         //max_active_deals = 15
 
         let max_inactive_funds = maxDealFunds * (max_active_deals - active_deals_count)
@@ -293,6 +352,7 @@ async function get3caccounts() {
 
     // Not currently inserting into the sheet.
     //pushToSheet('Account (raw)', dataArray);
+    setScriptProperty('account_data', JSON.stringify(dataArray))
     return dataArray
 
 }

@@ -1,10 +1,8 @@
-
 /************************************************
-*
-*           Write Sheet functions
-*
+ *
+ *           Write Sheet functions
+ *
  ************************************************/
-
 function pushToSheet(sheetName, data) {
 
     try {
@@ -123,9 +121,9 @@ function removeEmptyRows(tab) {
 }
 
 /************************************************
-*
-*           Get Sheet functions
-*
+ *
+ *           Get Sheet functions
+ *
  ************************************************/
 
 function getSheetHeaders(name) {
@@ -137,11 +135,12 @@ function getSheetHeaders(name) {
     let sheetHeaders = ss.getRange(1, 1, 1, lastCol).getValues();
     return sheetHeaders[0];
 }
+
 function getSpreadsheetDataByName(tabName) {
     /** 
-    * @param {string} tabName - This is the tab name from the tabNamesReturn() function.
-    * @description - Used to fetch the sheet data directly from the spreadsheet. 
-    */
+     * @param {string} tabName - This is the tab name from the tabNamesReturn() function.
+     * @description - Used to fetch the sheet data directly from the spreadsheet. 
+     */
 
     const ss = SpreadsheetApp.getActive().getSheetByName(tabName);
     let lastRow = ss.getLastRow();
@@ -182,63 +181,155 @@ function getSpreadsheetDataByName(tabName) {
 
 
 /************************************************
-*
-*           3Commas Google Sheet Functions
-*
+ *
+ *           3Commas Google Sheet Functions
+ *
  ************************************************/
 
 
-function onEdit(e) {
+// // Store sheet name in instructions H1 for query reference
+// function onSelectionChange(e) {
+//     const prop = PropertiesService.getScriptProperties();
+//     const previousSheet = prop.getProperty("previousSheet");
+//     const sheetName = e.range.getSheet().getSheetName();
+//     if (sheetName != previousSheet) {
+//         SpreadsheetApp.getActive().getRange("Instructions!H1").setValue(sheetName);
+//     }
+//     prop.setProperty("previousSheet", sheetName);
+// }
 
-    var sh = e.range.getSheet();
-    // link account filter dropdowns
 
-    // Selection on Risk Monitor or Performance Monitor
-    if (sh.getName() == 'Risk Monitor') {
-
-        // Account Filter
-        if (e.range.getA1Notation() == 'E2') {
-            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
-            // Currency Filter
-        } else if (e.range.getA1Notation() == 'F2') {
-            var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
-        }
-
-    } else if (sh.getName() == 'Performance Monitor') {
-
-        // Account Filter
-        if (e.range.getA1Notation() == 'E2') {
-            var account = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").setValue(account);
-            // Currency Filter
-        } else if (e.range.getA1Notation() == 'F2') {
-            var currency = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B1").setValue(currency);
-        }
-
-        // Selection on Risk Planner
-    } else if (sh.getName() == 'Risk Planner') {
-        if (e.range.getA1Notation() == 'A1') {
-            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A1").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-        } else if (e.range.getA1Notation() == 'A2') {
-            var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").getValue();
-            SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
-            SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+async function onEdit(e) {
+    const SHEETS = {
+        'Risk Monitor': {
+            'name': 'Risk Monitor',
+            'currency_cell': 'F2',
+            'account_cell': 'E2'
+        },
+        'Performance Monitor': {
+            'name': 'Performance Monitor',
+            'currency_cell': 'F2',
+            'account_cell': 'E2'
+        },
+        'Risk Planner': {
+            'name': 'Risk Planner',
+            'currency_cell': 'B2',
+            'account_cell': 'A2'
         }
     }
+
+
+    // grab changes from active sheet
+    let sheet = e.range.getSheet();
+    let currentSheetName = sheet.getName();
+    let dropdownPages = ['Risk Monitor', 'Performance Monitor', 'Risk Planner']
+    console.log(currentSheetName)
+
+    if (dropdownPages.includes(currentSheetName)) {
+        let accountElementCell = SHEETS[currentSheetName].account_cell;
+        let currencyElementCell = SHEETS[currentSheetName].currency_cell;
+
+        let account = SpreadsheetApp.getActiveSheet().getRange(accountElementCell).getValue();
+        let currency = SpreadsheetApp.getActiveSheet().getRange(currencyElementCell).getValue();
+
+
+        dropdownPages.filter(page => page !== currentSheetName)
+
+        dropdownPages.forEach(tab => {
+            let accountKey = SHEETS[tab].account_cell
+            let currencyKey = SHEETS[tab].currency_cell
+            console.log(tab)
+
+            SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS[tab].name).getRange(accountKey).setValue(account);
+            SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS[tab].name).getRange(currencyKey).setValue(currency);
+
+        })
+
+        let scriptParamsUpdate = (account, currency) => {
+            let InstructionPage = {
+                    'name' : 'Instructions',
+                    'params_start' : 'K2:K4'
+                
+            }
+            let accountData = JSON.parse(getScriptProperty('account_data'))
+            accountID = "All"
+            if(account != "All"){
+                accountID = accountData.find(e => e.name === account)
+            } 
+            console.log(accountID)
+
+            SpreadsheetApp.getActiveSpreadsheet().getSheetByName(InstructionPage.name).getRange(InstructionPage.params_start).setValues([[currency] , [accountID.id], [account]]);
+
+            setScriptProperty('account_name', account)
+            setScriptProperty('currency', currency)
+            setScriptProperty('account_id', accountID[id].toString())
+    
+            SpreadsheetApp.flush();
+
+        }
+        scriptParamsUpdate(account, currency)
+
+
+
+
+
+    }
+
 }
+
+// function onEdit(e) {
+
+//     var sh = e.range.getSheet();
+//     // link account filter dropdowns
+
+//     // Selection on Risk Monitor or Performance Monitor
+//     if (sh.getName() == 'Risk Monitor') {
+
+//         // Account Filter
+//         if (e.range.getA1Notation() == 'E2') {
+//             var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
+//             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+//             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").setValue(account);
+//             // Currency Filter
+//         } else if (e.range.getA1Notation() == 'F2') {
+//             var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
+//             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+//             if (currency != 'All') {
+//                 SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B2").setValue(currency);
+//             }
+//         }
+
+//     } else if (sh.getName() == 'Performance Monitor') {
+
+//         // Account Filter
+//         if (e.range.getA1Notation() == 'E2') {
+//             var account = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").getValue();
+//             SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+//             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").setValue(account);
+//             // Currency Filter
+//         } else if (e.range.getA1Notation() == 'F2') {
+//             var currency = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").getValue();
+//             if (currency != 'All') {
+//                 SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+//                 SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B2").setValue(currency);
+//             }
+
+//             // Selection on Risk Planner
+//         } else if (sh.getName() == 'Risk Planner') {
+//             if (e.range.getA1Notation() == 'A2') {
+//                 var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").getValue();
+//                 SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
+//                 SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
+//             } else if (e.range.getA1Notation() == 'A2') {
+//                 var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").getValue();
+//                 SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
+//                 if (currency != 'All') {
+//                     SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
+//                 }
+//             }
+//         }
+//     }
+// }
 
 
 /**
@@ -247,30 +338,36 @@ function onEdit(e) {
  * @return Populates the risk planner tab.
  *
  */
- function loadCurrentRisk() {
+function loadCurrentRisk() {
     let botTab = tabs().bot_tab
 
     // Update bankroll 
     var currentBankroll = +SpreadsheetApp.getActive().getSheetByName('Risk Monitor').getRange("D4").getValue();
-    var targetBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("A3");
+    var targetBankroll = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("A6");
     targetBankroll.setValue(currentBankroll);
 
-    const currency = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("B1").getValue();
+    const currency = SpreadsheetApp.getActive().getSheetByName('Risk Planner').getRange("B2").getValue();
     const accountID = SpreadsheetApp.getActive().getSheetByName('Risk Monitor').getRange("E3").getValue();
 
-    
+
     var targetRange = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Risk Planner')
 
-    targetRange.getRange(47, 3, 1000, 7).clear()
+    targetRange.getRange(50, 3, 1000, 7).clear()
 
-    console.log({accountID})
+    console.log({
+        accountID
+    })
     let botData = getSpreadsheetDataByName(botTab)
-        .filter(bot => { if (bot.from_currency == currency) { return true } })
+        .filter(bot => {
+            if (bot.from_currency == currency) {
+                return true
+            }
+        })
 
-        if(accountID != ''){
-            botData.filter(bot => bot.account_id == accountID)
-        }
-        
+    if (accountID != '') {
+        botData.filter(bot => bot.account_id == accountID)
+    }
+
     let dataArray = [];
 
     if (botData != [] && botData.length > 0) {
@@ -289,43 +386,20 @@ function onEdit(e) {
         //return dataArray
 
 
-        
 
-        targetRange.getRange(47, 3, dataArray.length, dataArray[0].length)
+
+        targetRange.getRange(50, 3, dataArray.length, dataArray[0].length)
             .setValues(dataArray)
             .setHorizontalAlignment("center")
     }
 }
 
-// function main() {
-//     var dt = new Date();
-//     var time_stamp = dt.toLocaleTimeString();
 
-//     // Refresh Accounts
-//     var accountSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Account (raw)");
-//     var cellVal = '=get3caccounts("' + time_stamp + '")';
-//     // Sleep for 5 secs to allow accounts to load in
-//     // Utilities.sleep(10*1000);
-//     accountSheet.getRange('A1').setValue(cellVal);
-//     SpreadsheetApp.flush();
-
-//     // Refresh Active Deals
-//     var dealSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Active Deals (raw)");
-//     var cellVal = '=get3cdealsactive("' + time_stamp + '")';
-//     dealSheet.getRange('A1').setValue(cellVal);
-
-//     // Refresh Completed Deals
-//     var dealCompleteSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Complete Deals (raw)");
-//     var cellVal = '=get3cdealscomplete("' + time_stamp + '")';
-//     dealCompleteSheet.getRange('A1').setValue(cellVal);
-
-//     // Sync all exchanges to 3 commas
-//     syncExchangeBalanceTo3c()
-
-//     // Show refresh time on dashboard
-//     SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Risk Monitor").getRange('I3').setValue("Last Refreshed: " + Date(Date.now()).toString())
-
-// }
+/************************************************
+ *
+ *           Custom Google Sheet functions
+ *
+ ************************************************/
 
 
 /**
@@ -336,4 +410,16 @@ function onEdit(e) {
  */
 function utc_today() {
     return Utilities.formatDate(new Date(), "UTC", "yyyy-MM-dd")
+}
+/** 
+* getScriptProperties
+*
+* @return Returns script properties
+* @param {string} property
+* @customfunction
+*/
+function script_properties(property) {
+   let scriptProperty = getScriptProperty(property)
+   console.log(scriptProperty)
+   return scriptProperty
 }
