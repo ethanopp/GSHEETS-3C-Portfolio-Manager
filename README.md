@@ -1,6 +1,6 @@
 # Links
 
-- [v5.6 Release](https://docs.google.com/spreadsheets/d/1xcqbVXD6D1J6n3_T73oXnSSr5tKlgBm28iUF7wPtddI/)
+- [v6 Release](https://docs.google.com/spreadsheets/d/1xcqbVXD6D1J6n3_T73oXnSSr5tKlgBm28iUF7wPtddI)
 - [Dev Sheet](https://docs.google.com/spreadsheets/d/138dYR2DmTD1yj_eqxzgsBYPWRwy8sdnQ9ZggJZHuPRc)
 
 # KNOW ISSUES
