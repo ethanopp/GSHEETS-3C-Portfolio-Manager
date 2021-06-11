@@ -222,7 +222,7 @@ async function get3cdeals() {
             'bot_name': (bot_type === 'SingleBot') ? bot_name :`${bot_name} - ${pair}`,
             actual_profit,
             actual_usd_profit,
-            'open_3': null,
+            'Impact_Factor': (status === "active") ? ((bought_average_price - current_price) / bought_average_price) * (1000/bought_volume) : 0,
             'hourly_per_unit_profit_percent': profitPercent,
         }
 
