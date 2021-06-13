@@ -66,11 +66,11 @@ async function getActiveDeals() {
 
     let endpoint = "/ver1/deals"
     let params = `&scope=active`
+    let apiKeys = returnApiKeys()
 
-    let apiCall = await query3commasAPI('GET', endpoint, params, true)  
-    apiCall.map(deal => deal['status'] = "active")
-
-    return apiCall
+    let apiCall = await GET(apiKeys, endpoint, params, true, 5000)  
+    apiCall.data.map(deal => deal['status'] = "active")
+    return apiCall.data
 }
 
 async function getCompletedDeals() {
@@ -83,11 +83,12 @@ async function getCompletedDeals() {
     
     // fetching closed deals by desc
     let params = `&scope=completed&order=closed_at&order_direction=desc`
+    let apiKeys = returnApiKeys()
 
-    let apiCall = await query3commasAPI('GET', endpoint, params, true)
-    apiCall.map(deal => deal['status'] = "completed")
+    let apiCall = await GET(apiKeys, endpoint, params, true, 5000)
+    apiCall.data.map(deal => deal['status'] = "completed")
 
-    return apiCall
+    return apiCall.data
         
 }
 
@@ -98,11 +99,13 @@ async function getMarketOrders(deal_id){
      * @api_docs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/deals_api.md#deal-safety-orders-permission-bots_read-security-signed
      */
     let endpoint = `/ver1/deals/${deal_id}/market_orders`
-    let params = ``
+    let params = ''
+    let apiKeys = returnApiKeys()
+    let apiCall = await GET(apiKeys, endpoint, params, false)
+
 
     let dataArray = []
 
-    let apiCall = await query3commasAPI('GET', endpoint, params, false)
       for(order of apiCall.data) {
           let {deal_order_type, status_string, quantity, quantity_remaining, total, rate, average_price} = order
 
@@ -254,12 +257,15 @@ async function get3cBots() {
 
      let endpoint = "/ver1/bots"
      let params = ''
+     let apiKeys = returnApiKeys()
+     let limit = 5000
+
  
-     let response = await query3commasAPI('GET', endpoint, params, true)
+     let response = await GET(apiKeys, endpoint, params, true, limit)
  
      let dataArray = []
  
-     for (bot of response) {
+     for (bot of response.data) {
         let {
             id, account_id, account_name, is_enabled,
             max_safety_orders, active_safety_orders_count,
@@ -331,8 +337,9 @@ async function get3caccounts() {
 
     let endpoint = "/ver1/accounts"
     let params = ''
+    let apiKeys = returnApiKeys()
 
-    var apiCall = await query3commasAPI("GET", endpoint, params, false);
+    var apiCall = await GET(apiKeys, endpoint, params, false, null);
     let dataArray = []
 
     // Load data into new array with only the columns we want and format them
@@ -369,7 +376,9 @@ async function get3cpie() {
 
         let endpoint = `/ver1/accounts/${id}/account_table_data`
         let params = ''
-        var apiCall = await query3commasAPI("POST", endpoint, params, false);
+        let apiKeys = returnApiKeys()
+
+        var apiCall = await POST(apiKeys, endpoint, params, null);
 
         // Load data into new array with only the columns we want and format them
         for (row of apiCall.data) {
@@ -412,9 +421,13 @@ async function syncExchangeBalanceTo3c() {
      */
     // Grab all Account IDs
     let accountData = await get3caccounts()
+    let apiKeys = returnApiKeys()
+
 
     for (account of accountData) {
-        await query3commasAPI("POST", `/ver1/accounts/${account.id}/load_balances`, "", false)
+        let endpoint = `/ver1/accounts/${account.id}/load_balances`
+        let params = ''
+        await POST(apiKeys, endpoint, params, null)
         
     }
 
