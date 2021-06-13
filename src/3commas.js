@@ -80,7 +80,9 @@ async function getCompletedDeals() {
      * @api_docs - https://github.com/3commas-io/3commas-official-api-docs/blob/master/deals_api.md#user-deals-permission-bots_read-security-signed
      */
     let endpoint = "/ver1/deals"
-    let params = `&scope=completed`
+    
+    // fetching closed deals by desc
+    let params = `&scope=completed&order=closed_at&order_direction=desc`
 
     let apiCall = await query3commasAPI('GET', endpoint, params, true)
     apiCall.map(deal => deal['status'] = "completed")
