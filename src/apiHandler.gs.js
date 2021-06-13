@@ -107,7 +107,7 @@ async function query3cLoop(method, endpoint, params = '') {
             'responseCode':response.status
             })
 
-        if(response.data.length != 1000){
+        if(response.data.length != 1000 || offset > 5000){
             break;
         }
         

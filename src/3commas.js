@@ -192,7 +192,9 @@ async function get3cdeals() {
         
         let dealHours = deal_hours(created_at, closed_at)
 
-        let profitPercent = (((+actual_profit + +bought_volume) - +bought_volume) / +bought_volume) / +bought_volume / +dealHours
+        // let profitPercent = (((+actual_profit + +bought_volume) - +bought_volume) / +bought_volume) / +bought_volume / +dealHours
+        let profitPercent = (final_profit_percentage / 100)  / +dealHours
+
 
         let tempObject = {
             id,
@@ -224,7 +226,7 @@ async function get3cdeals() {
             'bot_name': (bot_type === 'SingleBot') ? bot_name :`${bot_name} - ${pair}`,
             actual_profit,
             actual_usd_profit,
-            'Impact_Factor': (status === "active") ? ((bought_average_price - current_price) / bought_average_price) * (1000/bought_volume) : 0,
+            'Impact_Factor': (status === "active") ? ( ((bought_average_price - current_price) / bought_average_price) * (415 / (bought_volume^0.618)) ) / (actual_usd_profit / actual_profit) : 0,
             'hourly_per_unit_profit_percent': profitPercent,
         }
 
@@ -270,22 +272,14 @@ async function get3cBots() {
             finished_deals_count, pairs
             } = bot
 
-        
-
         let maxDealFunds = calculateMaxFunds_bot(max_safety_orders, base_order_volume, safety_order_volume, martingale_volume_coefficient)
-        //max_active_deals = 15
 
         let max_inactive_funds = maxDealFunds * (max_active_deals - active_deals_count)
 
-
-        // bot stats from this endpoint are not benefical as the only additional data it shows is today's profits.
-        // let botStats = await query3commasAPI('GET', '/ver1/bots/stats', `&bot_id=${id}`, false)
-        
         let botObject = {
             id,
             account_id,
             name,
-            //account_name,
             is_enabled,
             type,
             'from_currency': pairs[0].split('_'),
