@@ -56,14 +56,14 @@ Lastly, to delete API keys you can use the '3c - Risk Manager' > Delete API Keys
 - Implemented additional currency support.
 
 
-# v5.6
+## v5.6
 - Modified the account and sync API calls to use the new 3c api handler
 - Added bot statistics to 'Raw - Bot Data'
 - Updating name to '3C Portfolio Manager'
 - Added utc_today function to calculates today's date in UTC for formulas
 - Added on onEdit to link dropdowns from risk monitor to risk planner. 
 
-# v5.5
+## v5.5
 
 - Backend refresh to pull up to 5k deals from 3Commas.
 - Side bar, menu bar, and automated adding of triggers.
