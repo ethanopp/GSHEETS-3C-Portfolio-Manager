@@ -206,7 +206,7 @@ async function get3cdeals() {
             account_id,
             bot_id,
             'created_at (UTC)': Utilities.formatDate(new Date(created_at), "UTC", "MM-dd-yyyy"),
-            'open_1': null,
+            'realized_actual_profit_usd': (status === "active") ? null : +actual_usd_profit,
             'closed_at (UTC)': (closed_at != null) ? Utilities.formatDate(new Date(closed_at), "UTC", "MM-dd-yyyy") : null,
             'deal_hours': dealHours,
             completed_safety_orders_count,
