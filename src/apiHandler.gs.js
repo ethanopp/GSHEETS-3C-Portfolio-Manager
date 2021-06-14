@@ -1,4 +1,18 @@
 /**************************************************************************
+*************************************************************************
+
+                         API Handler Notes
+
+This API Handler is a copy of the 3Commas Google App Script API Handler.
+For more information or guides on usage visit the GitHub link below.
+
+GitHub - https://github.com/coltoneshaw/3-Commas-Google-API-Handler      
+      
+************************************************************************
+*************************************************************************/
+
+
+/**************************************************************************
  * 
  *                          Utility Functions
  * 
