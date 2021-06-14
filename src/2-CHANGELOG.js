@@ -3,9 +3,15 @@
 CHANGE LOG
 
 ## v6.3
-- Added a realized profit field to filter out active deals showing negative.
+
+### Spreadsheet Changes
 - Fixed the calculation from `onEdit` to `onEdit / 1 minute`
 - Fixed total profit by pair to include active deals.
+- Changed default rolling to 3 days.
+
+### Code Changes
+- Added a realized profit field to filter out active deals showing negative.
+
 
 ## v6.2 
 
