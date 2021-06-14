@@ -2,6 +2,11 @@
 
 CHANGE LOG
 
+## v6.3
+- Added a realized profit field to filter out active deals showing negative.
+- Fixed the calculation from `onEdit` to `onEdit / 1 minute`
+- Fixed total profit by pair to include active deals.
+
 ## v6.2 
 
 ### Spreadsheet Changes
