@@ -196,7 +196,7 @@ async function get3cdeals() {
         let dealHours = deal_hours(created_at, closed_at)
 
         // let profitPercent = (((+actual_profit + +bought_volume) - +bought_volume) / +bought_volume) / +bought_volume / +dealHours
-        let profitPercent = (final_profit_percentage / 100)  / +dealHours
+        let profitPercent = (status === "active")  ? null : (final_profit_percentage / 100)  / +dealHours 
 
 
         let tempObject = {
