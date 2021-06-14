@@ -252,10 +252,10 @@ async function onEdit(e) {
 
       }
       let accountData = JSON.parse(getScriptProperty('account_data'))
-      accountID = "All"
+      let accountID = "All"
       if (account != "All") {
         accountID = accountData.find(e => e.name === account)
-        accountID = accountId.id
+        accountID = accountID.id
       }
       console.log(accountID)
 
