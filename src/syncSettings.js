@@ -4,8 +4,8 @@
  * 
  ************************************************/
 
- function addTriggers() {
-     console.info('Added triggers')
+function addTriggers() {
+    console.info('Added triggers')
     removeAllTriggers();
     dailySyncAdd();
 }
@@ -27,14 +27,23 @@ function dailySyncAdd() {
         .create();
 }
 
-async function updateSheet(){
+function updateUTC() {
+    const spreadsheet = getDefaultSpreadsheetId();
+    spreadsheet.getSheetByName('Instructions').getRange('K1').setValue(utc_today());
+}
+
+async function updateSheet() {
+
+    updateUTC()
 
     // TODO - add error handling here for each to finish successful
     await syncExchangeBalanceTo3c()
     await get3cdeals()
     await get3cpie()
     await get3cBots()
-    
+
+
+
     console.log('updated all data.')
 }
 

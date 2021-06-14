@@ -425,6 +425,7 @@ function updateCharts() {
 function utc_today() {
   return Utilities.formatDate(new Date(), "UTC", "yyyy-MM-dd")
 }
+
 /** 
 * getScriptProperties
 *
