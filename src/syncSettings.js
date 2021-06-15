@@ -4,8 +4,8 @@
  * 
  ************************************************/
 
-function addTriggers() {
-    console.info('Added triggers')
+ function addTriggers() {
+     console.info('Added triggers')
     removeAllTriggers();
     dailySyncAdd();
 }
@@ -41,9 +41,6 @@ async function updateSheet() {
     await get3cdeals()
     await get3cpie()
     await get3cBots()
-
-
-
     console.log('updated all data.')
 }
 

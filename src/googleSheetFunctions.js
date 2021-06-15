@@ -186,19 +186,6 @@ function getSpreadsheetDataByName(tabName) {
  *
  ************************************************/
 
-
-// // Store sheet name in instructions H1 for query reference
-// function onSelectionChange(e) {
-//     const prop = PropertiesService.getScriptProperties();
-//     const previousSheet = prop.getProperty("previousSheet");
-//     const sheetName = e.range.getSheet().getSheetName();
-//     if (sheetName != previousSheet) {
-//         SpreadsheetApp.getActive().getRange("Instructions!H1").setValue(sheetName);
-//     }
-//     prop.setProperty("previousSheet", sheetName);
-// }
-
-
 async function onEdit(e) {
   const SHEETS = {
     'Risk Monitor': {
@@ -277,60 +264,6 @@ async function onEdit(e) {
   }
 
 }
-
-// function onEdit(e) {
-
-//     var sh = e.range.getSheet();
-//     // link account filter dropdowns
-
-//     // Selection on Risk Monitor or Performance Monitor
-//     if (sh.getName() == 'Risk Monitor') {
-
-//         // Account Filter
-//         if (e.range.getA1Notation() == 'E2') {
-//             var account = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").getValue();
-//             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
-//             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").setValue(account);
-//             // Currency Filter
-//         } else if (e.range.getA1Notation() == 'F2') {
-//             var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").getValue();
-//             SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
-//             if (currency != 'All') {
-//                 SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B2").setValue(currency);
-//             }
-//         }
-
-//     } else if (sh.getName() == 'Performance Monitor') {
-
-//         // Account Filter
-//         if (e.range.getA1Notation() == 'E2') {
-//             var account = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").getValue();
-//             SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-//             SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").setValue(account);
-//             // Currency Filter
-//         } else if (e.range.getA1Notation() == 'F2') {
-//             var currency = SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").getValue();
-//             if (currency != 'All') {
-//                 SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
-//                 SpreadsheetApp.getActiveSheet().getRange("Risk Planner!B2").setValue(currency);
-//             }
-
-//             // Selection on Risk Planner
-//         } else if (sh.getName() == 'Risk Planner') {
-//             if (e.range.getA1Notation() == 'A2') {
-//                 var account = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").getValue();
-//                 SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!E2").setValue(account);
-//                 SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!E2").setValue(account);
-//             } else if (e.range.getA1Notation() == 'A2') {
-//                 var currency = SpreadsheetApp.getActiveSheet().getRange("Risk Planner!A2").getValue();
-//                 SpreadsheetApp.getActiveSheet().getRange("Performance Monitor!F2").setValue(currency);
-//                 if (currency != 'All') {
-//                     SpreadsheetApp.getActiveSheet().getRange("Risk Monitor!F2").setValue(currency);
-//                 }
-//             }
-//         }
-//     }
-// }
 
 
 /**
@@ -425,7 +358,6 @@ function updateCharts() {
 function utc_today() {
   return Utilities.formatDate(new Date(), "UTC", "yyyy-MM-dd")
 }
-
 /** 
 * getScriptProperties
 *
